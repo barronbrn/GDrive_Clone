@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\FileController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,24 +15,18 @@ use App\Http\Controllers\FileController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [DashboardController::class, 'index'])
+    ->name('dashboard');
 
-Route::get('/dashboard', function () {
-    return redirect()->route('my-drive');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
+// Rute untuk mengelola profil pengguna, juga dilindungi oleh login.
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/my-drive/{folder?}', [FileController::class, 'index'])->name('my-drive');
-    Route::post('/folder/create', [FileController::class, 'createFolder'])->name('folder.create');
-    Route::post('/file/upload', [FileController::class, 'uploadFile'])->name('file.upload');
-    Route::get('/file/download/{file}', [FileController::class, 'downloadFile'])->name('file.download');
-    Route::delete('/file/delete/{file}', [FileController::class, 'deleteFile'])->name('file.delete');
+    Route::get('/recent', [DashboardController::class, 'recent'])->name('recent');
+    Route::get('/trash', [DashboardController::class, 'trash'])->name('trash');
 });
 
-require __DIR__.'/auth.php';
+// Memuat rute-rute autentikasi (login, logout, register, dll.)
+require __DIR__ . '/auth.php';
