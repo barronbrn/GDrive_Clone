@@ -63,7 +63,27 @@ class DashboardController extends Controller
         return $this->download($file);
     }
 
-    // ... sisa method (createFolder, uploadFile, delete, dll) tidak berubah ...
+    public function updateName(Request $request, File $file)
+    {
+        // 1. Keamanan: Pastikan user adalah pemilik item
+        if ($file->created_by !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // 2. Validasi: Pastikan nama baru valid
+        $request->validate([
+            'file_name' => 'required|string|max:255',
+        ]);
+
+        // 3. Update: Simpan nama baru ke database
+        $file->update([
+            'name' => $request->file_name,
+        ]);
+
+        // 4. Feedback: Kirim pesan sukses
+        return back()->with('success', 'Nama berhasil diperbarui.');
+    }
+
     public function createFolder(Request $request)
     {
         $request->validate(['folder_name' => 'required|string|max:255']);
