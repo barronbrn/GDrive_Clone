@@ -74,25 +74,25 @@
         <div class="flex-1 flex flex-col">
             <!-- Header biru -->
             @if (isset($header))
-                <header class="bg-[#00529B] shadow">
+                <header class="">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                        <h2 class="font-semibold text-xl text-white leading-tight">
                             {{ $header }}
-                        </h2>
                         <!-- User dropdown pindahkan ke sini -->
                         @include('layouts.navigation')
                     </div>
                 </header>
             <!-- Breadcrumb -->
-            <nav class="text-sm text-black-200 mt-2" aria-label="Breadcrumb">
-                <ol class="list-reset flex">
-                    <li>
-                        <a href="{{ route('dashboard') }}" class="hover:underline">Dashboard</a>
-                    </li>
-                    <li><span class="mx-2">/</span></li>
-                    <li class="text-black-100">Profile</li>
-                </ol>
-            </nav>
+           <!-- Breadcrumb -->
+                <nav class="text-sm text-gray-500 mt-2 ml-8" aria-label="Breadcrumb">
+                    <ol class="list-reset flex">
+                        <li>
+                            <a href="{{ route('dashboard') }}" class="hover:underline">Dashboard</a>
+                        </li>
+                        <li><span class="mx-2">/</span></li>
+                        <li class="text-sm text-gray-500  font-medium">Profile</li>
+                    </ol>
+                </nav>
+
             @endif
 
             <!-- Konten -->
