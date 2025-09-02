@@ -14,31 +14,33 @@ use App\Http\Controllers\DashboardController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-// Halaman utama (root)
+// Halaman utama (dashboard)
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-// Rute untuk menampilkan isi folder
 Route::get('/folders/{folder}', [DashboardController::class, 'index'])->name('dashboard.folder');
 
 // Grup rute yang memerlukan login
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Rute Profil
+    // Profil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Rute Menu Navigasi
+    // Menu Navigasi Utama
     Route::get('/recent', [DashboardController::class, 'recent'])->name('recent');
     Route::get('/trash', [DashboardController::class, 'trash'])->name('trash');
 
-    // Rute Aksi CRUD
+    // Aksi CRUD
     Route::post('/folder/create', [DashboardController::class, 'createFolder'])->name('folder.create');
     Route::post('/file/upload', [DashboardController::class, 'uploadFile'])->name('file.upload');
     Route::delete('/file/delete/{file}', [DashboardController::class, 'delete'])->name('file.delete');
 
-    // Rute Aksi File
+    // Aksi File & Download
     Route::get('/file/download/{file}', [DashboardController::class, 'download'])->name('file.download');
     Route::get('/file/preview/{file}', [DashboardController::class, 'preview'])->name('file.preview');
+
+    // === RUTE BARU UNTUK TRASH ===
+    Route::post('/trash/restore/{id}', [DashboardController::class, 'restore'])->name('trash.restore');
+    Route::delete('/trash/force-delete/{id}', [DashboardController::class, 'forceDelete'])->name('trash.forceDelete');
 });
 
 require __DIR__ . '/auth.php';
