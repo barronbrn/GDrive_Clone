@@ -27,9 +27,8 @@
                         <h3 class="font-semibold truncate">{{ $subFolder->name }}</h3>
                         <p class="text-sm text-gray-400">{{ $subFolder->created_at->format('d M, Y') }}</p>
                     </div>
-                    <!-- Tombol Aksi Dropdown (Selalu Terlihat) -->
                     <div x-data="{ open: false }" class="absolute top-2 right-2 z-20">
-                        <button @click.stop.prevent="open = !open" class="text-black hover:text-gray-600 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-bri-blue">
+                        <button @click.stop.prevent="open = !open" class="text-gray-400 hover:text-gray-600 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-bri-blue">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"></path></svg>
                         </button>
                         <div x-show="open" @click.outside="open = false" x-cloak class="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg border">
@@ -48,13 +47,16 @@
         <div class="bg-white rounded-lg shadow-sm">
             <div class="hidden md:grid grid-cols-12 gap-4 text-sm font-semibold text-gray-500 px-6 py-4 border-b"><div class="col-span-5">Name</div><div class="col-span-3">Last Modified</div><div class="col-span-2">Size</div><div class="col-span-2"></div></div>
             @forelse ($files as $file)
-                <div class="grid grid-cols-12 gap-4 items-center px-6 py-4 hover:bg-gray-50 border-b last:border-b-0">
-                    <a href="{{ route('file.preview', $file) }}" target="_blank" class="col-span-12 md:col-span-5 flex items-center space-x-3"><div class="p-2 bg-blue-100 rounded-lg"><svg class="w-5 h-5 text-bri-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0011.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg></div><span class="font-medium truncate">{{ $file->name }}</span></a>
+                <div class="grid grid-cols-12 gap-4 items-center px-6 py-4 hover:bg-gray-50 border-b last:border-b-0 group">
+                    <a href="{{ route('file.preview', $file) }}" target="_blank" class="col-span-12 md:col-span-5 flex items-center space-x-3">
+                        <x-file-icon :item="$file" />
+                        <span class="font-medium truncate">{{ $file->name }}</span>
+                    </a>
                     <div class="col-span-6 md:col-span-3 text-sm text-gray-500">{{ $file->updated_at->format('d M, Y') }}</div>
                     <div class="col-span-6 md:col-span-2 text-sm text-gray-500">{{ \Illuminate\Support\Number::fileSize($file->size) }}</div>
                     <div class="col-span-12 md:col-span-2 text-right">
                         <div x-data="{ open: false }" class="relative inline-block text-left">
-                            <button @click="open = !open" class="text-black hover:text-gray-700 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-bri-blue">
+                            <button @click="open = !open" class="text-gray-500 hover:text-gray-700 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-bri-blue">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"></path></svg>
                             </button>
                             <div x-show="open" @click.outside="open = false" x-cloak class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>
         @if(request()->routeIs('recent')) Recent Items
         @elseif(request()->routeIs('trash')) Trash
@@ -10,7 +11,23 @@
         @else Dashboard @endif
         - DataBOX
     </title>
-    <link rel="preconnect" href="https://fonts.bunny.net"><link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />@vite(['resources/css/app.css', 'resources/js/app.js'])<style>:root { --bri-blue: #00529B; --bri-blue-dark: #003a70; } body { background-color: #f4f7fc; } .bg-bri-blue { background-color: var(--bri-blue); } .hover\:bg-bri-blue-dark:hover { background-color: var(--bri-blue-dark); } .text-bri-blue { color: var(--bri-blue); } .ring-bri-blue:focus { --tw-ring-color: var(--bri-blue); } [x-cloak] { display: none !important; }</style>
+    
+    {{-- <link href="https://cdn.jsdelivr.net/npm/material-design-icons-iconfont@1.6.50/dist/material-design-icons.min.css" rel="stylesheet"> --}}
+
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        :root { --bri-blue: #00529B; --bri-blue-dark: #003a70; } 
+        body { background-color: #f4f7fc; } 
+        .bg-bri-blue { background-color: var(--bri-blue); } 
+        .hover\:bg-bri-blue-dark:hover { background-color: var(--bri-blue-dark); } 
+        .text-bri-blue { color: var(--bri-blue); } 
+        .ring-bri-blue:focus { --tw-ring-color: var(--bri-blue); } 
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
 <body class="font-sans text-gray-800 antialiased" 
       x-data="{ 
