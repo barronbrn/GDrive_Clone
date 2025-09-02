@@ -4,61 +4,156 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 
 
 class DashboardController extends Controller
 {
-    //
-    public function index()
+    /**
+     * Menampilkan file dan folder berdasarkan folder saat ini.
+     */
+    public function index(Request $request, File $folder = null)
     {
-        $folders = [];
-        $files = [];
+        $folders = collect();
+        $files = collect();
+        $breadcrumbs = $this->getBreadcrumbs($folder);
 
-        // Hanya ambil dan kirim data jika pengguna sudah login.
-        // Untuk tamu, variabel $folders dan $files akan menjadi array kosong.
         if (Auth::check()) {
-            // NANTINYA: Ganti ini dengan query database ke tabel 'files'
-            // $user = Auth::user();
-            // $folders = $user->files()->where('is_folder', true)->whereNull('parent_id')->get();
-            // $files = $user->files()->where('is_folder', false)->whereNull('parent_id')->get();
+            $user = Auth::user();
+            $this->authorizeFolderAccess($folder);
 
-            // Untuk sekarang, kita tetap gunakan data dummy untuk pengguna yang sudah login
-            $folders = [
-                ['name' => 'Laporan Keuangan', 'date' => '10 Dec, 2020', 'file_count' => 8],
-                ['name' => 'Dokumen HRD', 'date' => '09 Dec, 2020', 'file_count' => 12],
-                ['name' => 'Materi Marketing', 'date' => '08 Dec, 2020', 'file_count' => 5],
-                ['name' => 'Proyek Klien A', 'date' => '06 Dec, 2020', 'file_count' => 24],
-            ];
+            $searchQuery = $request->input('search');
+            $sortBy = $request->input('sort_by', 'name_asc');
+            [$sortField, $sortDirection] = $this->parseSortBy($sortBy);
 
-            $files = [
-                ['name' => 'rekap-bulanan.xlsx', 'members' => 'Me', 'last_edit' => 'Jan 21, 2020 me', 'size' => '2 MB'],
-                ['name' => 'kontrak-karyawan.pdf', 'members' => 'HR Team', 'last_edit' => 'Jan 25, 2020 HR Team', 'size' => '1 MB'],
-                ['name' => 'presentasi-q3.pptx', 'members' => 'Me', 'last_edit' => 'Mar 30, 2020 Marketing', 'size' => '30 MB'],
-            ];
+            $currentFolderId = $folder ? $folder->id : null;
+
+            $folderQuery = File::where('created_by', $user->id)
+                ->where('is_folder', true)
+                ->where('parent_id', $currentFolderId)
+                ->orderBy($sortField, $sortDirection);
+
+            $fileQuery = File::where('created_by', $user->id)
+                ->where('is_folder', false)
+                ->where('parent_id', $currentFolderId)
+                ->orderBy($sortField, $sortDirection);
+
+            if ($searchQuery) {
+                $folderQuery->where('name', 'like', '%' . $searchQuery . '%');
+                $fileQuery->where('name', 'like', '%' . $searchQuery . '%');
+            }
+
+            $folders = $folderQuery->get();
+            $files = $fileQuery->get();
         }
 
-        return view('dashboard', compact('folders', 'files'));
+        return view('dashboard', compact('folders', 'files', 'folder', 'breadcrumbs'));
     }
 
+    /**
+     * Menangani download file.
+     */
+    public function download(File $file)
+    {
+        $this->authorizeFileAccess($file);
+        return Storage::disk('private')->download($file->path, $file->name);
+    }
+
+    /**
+     * Menampilkan pratinjau file.
+     */
+    public function preview(File $file)
+    {
+        $this->authorizeFileAccess($file);
+
+        $path = Storage::disk('private')->path($file->path);
+
+        if (in_array($file->mime_type, ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain'])) {
+            return Response::file($path);
+        }
+
+        return $this->download($file);
+    }
+
+    // ... sisa method (createFolder, uploadFile, delete, dll) tidak berubah ...
+    public function createFolder(Request $request)
+    {
+        $request->validate(['folder_name' => 'required|string|max:255']);
+        File::create([
+            'name' => $request->folder_name,
+            'is_folder' => true,
+            'created_by' => Auth::id(),
+            'parent_id' => $request->parent_id,
+        ]);
+        return back()->with('success', 'Folder berhasil dibuat.');
+    }
+    public function uploadFile(Request $request)
+    {
+        $request->validate(['file_upload' => 'required|file|max:20480']);
+        $uploadedFile = $request->file('file_upload');
+        $path = $uploadedFile->store('files/' . Auth::id(), 'private');
+        File::create([
+            'name' => $uploadedFile->getClientOriginalName(),
+            'path' => $path,
+            'mime_type' => $uploadedFile->getMimeType(),
+            'size' => $uploadedFile->getSize(),
+            'is_folder' => false,
+            'created_by' => Auth::id(),
+            'parent_id' => $request->parent_id,
+        ]);
+        return back()->with('success', 'File berhasil diupload.');
+    }
+    public function delete(File $file)
+    {
+        if ($file->created_by !== Auth::id()) abort(403);
+        $file->delete();
+        return back()->with('success', 'Item berhasil dipindahkan ke Trash.');
+    }
+    private function getBreadcrumbs($folder)
+    {
+        if (!$folder) return collect();
+        $breadcrumbs = collect();
+        $current = $folder;
+        while ($current) {
+            $breadcrumbs->prepend(['name' => $current->name, 'route' => route('dashboard.folder', $current)]);
+            $current = File::find($current->parent_id);
+        }
+        return $breadcrumbs;
+    }
+    private function authorizeFolderAccess($folder)
+    {
+        if ($folder && $folder->created_by !== Auth::id()) {
+            abort(403, 'Unauthorized Access');
+        }
+    }
+    private function authorizeFileAccess(File $file)
+    {
+        if ($file->is_folder || $file->created_by !== Auth::id()) {
+            abort(403);
+        }
+    }
+    private function parseSortBy($sortBy)
+    {
+        switch ($sortBy) {
+            case 'name_desc':
+                return ['name', 'desc'];
+            case 'date_desc':
+                return ['created_at', 'desc'];
+            case 'date_asc':
+                return ['created_at', 'asc'];
+            case 'name_asc':
+            default:
+                return ['name', 'asc'];
+        }
+    }
     public function recent()
     {
-        // NANTINYA: Tulis query untuk mengambil file yang baru diakses
-        $folders = []; // Data dummy untuk recent folders
-        $files = [
-            ['name' => 'presentasi-q3.pptx', 'members' => 'Me', 'last_edit' => 'Sep 01, 2025 Me', 'size' => '30 MB'],
-        ]; // Data dummy untuk recent files
-
-        // Kita gunakan view yang sama untuk konsistensi
-        return view('dashboard', compact('folders', 'files'));
+        return view('dashboard', ['folders' => collect(), 'files' => collect(), 'folder' => null, 'breadcrumbs' => collect()]);
     }
-
     public function trash()
     {
-        // NANTINYA: Tulis query untuk mengambil file yang sudah di-soft delete
-        $folders = []; // Data dummy untuk trash
-        $files = [];   // Data dummy untuk trash
-
-        // Kita gunakan view yang sama
-        return view('dashboard', compact('folders', 'files'));
+        return view('dashboard', ['folders' => collect(), 'files' => collect(), 'folder' => null, 'breadcrumbs' => collect()]);
     }
 }
