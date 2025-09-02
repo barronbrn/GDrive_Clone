@@ -19,36 +19,22 @@ class DashboardController extends Controller
         $folders = collect();
         $files = collect();
         $breadcrumbs = $this->getBreadcrumbs($folder);
-
         if (Auth::check()) {
             $user = Auth::user();
             $this->authorizeFolderAccess($folder);
-
             $searchQuery = $request->input('search');
             $sortBy = $request->input('sort_by', 'name_asc');
             [$sortField, $sortDirection] = $this->parseSortBy($sortBy);
-
             $currentFolderId = $folder ? $folder->id : null;
-
-            $folderQuery = File::where('created_by', $user->id)
-                ->where('is_folder', true)
-                ->where('parent_id', $currentFolderId)
-                ->orderBy($sortField, $sortDirection);
-
-            $fileQuery = File::where('created_by', $user->id)
-                ->where('is_folder', false)
-                ->where('parent_id', $currentFolderId)
-                ->orderBy($sortField, $sortDirection);
-
+            $folderQuery = File::where('created_by', $user->id)->where('is_folder', true)->where('parent_id', $currentFolderId)->orderBy($sortField, $sortDirection);
+            $fileQuery = File::where('created_by', $user->id)->where('is_folder', false)->where('parent_id', $currentFolderId)->orderBy($sortField, $sortDirection);
             if ($searchQuery) {
                 $folderQuery->where('name', 'like', '%' . $searchQuery . '%');
                 $fileQuery->where('name', 'like', '%' . $searchQuery . '%');
             }
-
             $folders = $folderQuery->get();
             $files = $fileQuery->get();
         }
-
         return view('dashboard', compact('folders', 'files', 'folder', 'breadcrumbs'));
     }
 
@@ -148,12 +134,62 @@ class DashboardController extends Controller
                 return ['name', 'asc'];
         }
     }
+
+
     public function recent()
     {
-        return view('dashboard', ['folders' => collect(), 'files' => collect(), 'folder' => null, 'breadcrumbs' => collect()]);
+        $recentItems = collect();
+        if (Auth::check()) {
+            // Ambil semua file & folder milik user, urutkan berdasarkan yang terbaru dibuat
+            $recentItems = File::where('created_by', Auth::id())
+                ->orderBy('created_at', 'desc')
+                ->limit(50) // Batasi hanya 50 item terbaru untuk performa
+                ->get();
+        }
+        // Pastikan variabel folder dan breadcrumbs selalu ada
+        return view('dashboard', [
+            'recentItems' => $recentItems,
+            'folder' => null,
+            'breadcrumbs' => collect()
+        ]);
     }
+
     public function trash()
     {
-        return view('dashboard', ['folders' => collect(), 'files' => collect(), 'folder' => null, 'breadcrumbs' => collect()]);
+        $trashedItems = collect();
+        if (Auth::check()) {
+            // Ambil semua file & folder milik user yang sudah di-soft delete
+            $trashedItems = File::where('created_by', Auth::id())
+                ->onlyTrashed() // <-- Kunci utamanya ada di sini
+                ->orderBy('deleted_at', 'desc')
+                ->get();
+        }
+        // Pastikan variabel folder dan breadcrumbs selalu ada
+        return view('dashboard', [
+            'trashedItems' => $trashedItems,
+            'folder' => null,
+            'breadcrumbs' => collect()
+        ]);
+    }
+
+    public function restore($id)
+    {
+        // Cari file HANYA di dalam trash
+        $file = File::onlyTrashed()->where('created_by', Auth::id())->findOrFail($id);
+        $file->restore();
+        return back()->with('success', 'Item berhasil dikembalikan.');
+    }
+
+    public function forceDelete($id)
+    {
+        // Cari file HANYA di dalam trash
+        $file = File::onlyTrashed()->where('created_by', Auth::id())->findOrFail($id);
+
+        if (!$file->is_folder) {
+            Storage::disk('private')->delete($file->path);
+        }
+
+        $file->forceDelete();
+        return back()->with('success', 'Item berhasil dihapus permanen.');
     }
 }
