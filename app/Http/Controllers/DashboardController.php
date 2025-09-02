@@ -167,11 +167,7 @@ class DashboardController extends Controller
                 ->get();
         }
         // Pastikan variabel folder dan breadcrumbs selalu ada
-        return view('dashboard', [
-            'recentItems' => $recentItems,
-            'folder' => null,
-            'breadcrumbs' => collect()
-        ]);
+        return view('recent', ['recentItems' => $recentItems]);
     }
 
     public function trash()
@@ -185,11 +181,7 @@ class DashboardController extends Controller
                 ->get();
         }
         // Pastikan variabel folder dan breadcrumbs selalu ada
-        return view('dashboard', [
-            'trashedItems' => $trashedItems,
-            'folder' => null,
-            'breadcrumbs' => collect()
-        ]);
+        return view('trash', ['trashedItems' => $trashedItems]);
     }
 
     public function restore($id)
