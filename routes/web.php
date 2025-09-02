@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/folder/create', [DashboardController::class, 'createFolder'])->name('folder.create');
     Route::post('/file/upload', [DashboardController::class, 'uploadFile'])->name('file.upload');
     Route::delete('/file/delete/{file}', [DashboardController::class, 'delete'])->name('file.delete');
+    Route::patch('/file/update/{file}', [DashboardController::class, 'updateName'])->name('file.update');
 
     // Aksi File & Download
     Route::get('/file/download/{file}', [DashboardController::class, 'download'])->name('file.download');
