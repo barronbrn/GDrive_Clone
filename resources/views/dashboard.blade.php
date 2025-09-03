@@ -1,10 +1,17 @@
 <x-app-layout>
-    <x-slot name="title">Dashboard</x-slot>
+    {{-- Mengatur judul halaman dinamis --}}
+    <x-slot name="title">
+        @if(isset($folder) && $folder) {{ $folder->name }} 
+        @elseif(request()->routeIs('recent')) Recent Items
+        @elseif(request()->routeIs('trash')) Trash
+        @else Dashboard 
+        @endif
+    </x-slot>
 
-    @include('partials.dashboard-files', [
-        'folders' => $folders ?? collect(), 
-        'files' => $files ?? collect(),
-        'folder' => $folder ?? null,
-        'breadcrumbs' => $breadcrumbs ?? collect()
-    ])
+    {{-- Memanggil partial yang sesuai untuk halaman ini --}}
+    @if(isset($folder) && $folder)
+        @include('partials.folder-contents', ['items' => $items, 'folder' => $folder, 'breadcrumbs' => $breadcrumbs])
+    @else
+        @include('partials.dashboard-files', ['recentItems' => $recentItems ?? collect(), 'items' => $items ?? collect()])
+    @endif
 </x-app-layout>

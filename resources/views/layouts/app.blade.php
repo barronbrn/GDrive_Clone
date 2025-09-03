@@ -30,40 +30,67 @@
       }">
 
     <div class="flex h-screen bg-gray-100">
-        {{-- Memanggil Sidebar --}}
-        @include('layouts.partials.sidebar')
+        @include('partials.sidebar')
 
         <main class="flex-1 p-8 overflow-y-auto">
-            {{-- Memanggil Header --}}
-            @include('layouts.partials.header')
+            @include('partials.header')
 
             <div class="mt-8">
-                {{-- Notifikasi --}}
                 @if (session('success'))
                     <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md" role="alert">
                         <p>{{ session('success') }}</p>
                     </div>
                 @endif
-                @if ($errors->any())
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md" role="alert">
-                        <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
-                    </div>
-                @endif
                 
-                {{-- Di sinilah konten spesifik halaman akan ditampilkan --}}
                 {{ $slot }}
+
             </div>
         </main>
     </div>
 
-    <div x-show="showCreateFolderModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        {{-- ... Kode modal Create Folder ... --}}
+    <div x-show="showCreateFolderModal" x-cloak @keydown.escape.window="showCreateFolderModal = false" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div @click.outside="showCreateFolderModal = false" class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h3 class="text-xl font-semibold mb-4">Create New Folder</h3>
+            <form action="{{ route('folder.create') }}" method="POST">
+                @csrf
+                <input type="hidden" name="parent_id" value="{{ $folder?->id ?? null }}">
+                <input type="text" name="folder_name" placeholder="Enter folder name" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 ring-bri-blue" required>
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button type="button" @click="showCreateFolderModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-bri-blue text-white rounded-lg hover:bg-bri-blue-dark">Create</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div x-show="showUploadFileModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        {{-- ... Kode modal Upload File ... --}}
+    
+    <div x-show="showUploadFileModal" x-cloak @keydown.escape.window="showUploadFileModal = false" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div @click.outside="showUploadFileModal = false" class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h3 class="text-xl font-semibold mb-4">Upload New File</h3>
+            <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="parent_id" value="{{ $folder?->id ?? null }}">
+                <input type="file" name="file_upload" class="w-full border border-gray-300 rounded-lg p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-bri-blue hover:file:bg-blue-100" required>
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button type="button" @click="showUploadFileModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-bri-blue text-white rounded-lg hover:bg-bri-blue-dark">Upload</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div x-show="showEditModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        {{-- ... Kode modal Edit Name ... --}}
+    
+    <div x-show="showEditModal" x-cloak @keydown.escape.window="showEditModal = false" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div @click.outside="showEditModal = false" class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h3 class="text-xl font-semibold mb-4" x-text="`Rename '${editItem.name}'`"></h3>
+            <form :action="editItem.action" method="POST">
+                @csrf
+                @method('PATCH')
+                <input type="text" name="file_name" x-model="editItem.name" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 ring-bri-blue" required>
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button type="button" @click="showEditModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-bri-blue text-white rounded-lg hover:bg-bri-blue-dark">Save Changes</button>
+                </div>
+            </form>
+        </div>
     </div>
 </body>
 </html>
