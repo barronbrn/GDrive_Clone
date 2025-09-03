@@ -4,11 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
@@ -42,10 +40,13 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // event register tetap dijalankan (misalnya kalau butuh verifikasi email)
         event(new Registered($user));
 
-        Auth::login($user);
+        // ⚠️ hapus ini agar tidak auto login:
+        // Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        // arahkan ke halaman login
+        return redirect()->route('login')->with('success', 'Registrasi berhasil, silakan login.');
     }
 }
