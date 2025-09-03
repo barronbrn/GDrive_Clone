@@ -55,9 +55,8 @@
       box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
     }
 
-    /* ✅ Logo diperbesar */
     .container-left img {
-      width: 360px; /* Diperbesar */
+      width: 360px; 
       height: auto;
     }
 

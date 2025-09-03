@@ -17,8 +17,7 @@ class RegisteredUserController extends Controller
      * Display the registration view.
      */
     public function create(): View
-    {
-        return view('auth.register');
+    {        return view('auth.register');
     }
 
     /**
@@ -42,9 +41,6 @@ class RegisteredUserController extends Controller
 
         // event register tetap dijalankan (misalnya kalau butuh verifikasi email)
         event(new Registered($user));
-
-        // ⚠️ hapus ini agar tidak auto login:
-        // Auth::login($user);
 
         // arahkan ke halaman login
         return redirect()->route('login')->with('success', 'Registrasi berhasil, silakan login.');
