@@ -17,16 +17,12 @@
   <!-- Custom Styles -->
   <style>
     body {
-      /* Background gradasi tetap */
       background: linear-gradient(to bottom right, #0f172a, #1e3a8a, #1e40af);
-
-      /* Tambahan motif Mega Mendung */
       background-image: 
         url('/images/bg-mega-mendung.jpg'),
         linear-gradient(to bottom right, #0f172a, #1e3a8a, #1e40af);
-
       background-repeat: repeat;
-      background-size: 1420px, cover; /* Perbesar ukuran motif */
+      background-size: 1420px, cover;
       background-blend-mode: overlay;
     }
 
@@ -57,7 +53,6 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-
       border-top-left-radius: 1rem;
       border-bottom-left-radius: 1rem;
       box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
@@ -81,7 +76,6 @@
       justify-content: center;
       align-items: center;
       flex-direction: column;
-
       border-top-right-radius: 1rem;
       border-bottom-right-radius: 1rem;
       box-shadow: 4px 0 15px rgba(0, 0, 0, 0);
@@ -134,6 +128,14 @@
                 class="w-full py-2 px-4 bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-800 transition">
                 Login
               </button>
+            </div>
+
+            <!-- Register Link -->
+            <div class="text-center mt-3 text-sm">
+              Belum punya akun? 
+              <a href="{{ route('register') }}" class="text-blue-600 hover:underline font-medium">
+                Register
+              </a>
             </div>
           </form>
         </div>
