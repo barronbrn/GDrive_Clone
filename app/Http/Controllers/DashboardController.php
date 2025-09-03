@@ -13,54 +13,47 @@ class DashboardController extends Controller
 {
     public function index(Request $request, File $folder = null)
     {
-        if ($folder) {
-            return $this->showFolderContents($request, $folder);
-        }
-        return $this->showRootDashboard($request);
-    }
-
-    private function showRootDashboard(Request $request)
-    {
-        $recentItems = collect();
         $items = collect();
+        $breadcrumbs = collect();
 
         if (Auth::check()) {
             $user = Auth::user();
-            $recentItems = File::where('created_by', $user->id)->whereNotNull('last_accessed_at')->orderBy('last_accessed_at', 'desc')->limit(8)->get();
 
-            $baseQuery = File::where('created_by', $user->id)->whereNull('parent_id');
-            $this->applyFilters($baseQuery, $request);
+            $query = File::where('created_by', $user->id);
 
+            if ($folder) {
+                // Kalau buka folder → hanya isi folder tsb
+                $query->where('parent_id', $folder->id);
+                $breadcrumbs = $this->getBreadcrumbs($folder);
+            } else {
+                if ($request->filled('search')) {
+                    // Kalau di root + search → cari semua level
+                    $search = $request->search;
+                    $query->where(function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+                } else {
+                    // Kalau di root tanpa search → hanya anak root
+                    $query->whereNull('parent_id');
+                }
+            }
+
+            // Filter tambahan (modified)
+            $this->applyFilters($query, $request);
+
+            // Sorting
             $sortDirection = $request->input('sort_direction', 'asc');
-
-            // PERUBAHAN: Gunakan get() untuk mengambil semua item, bukan paginate()
-            $items = $baseQuery->orderBy('is_folder', 'desc')->orderBy('name', $sortDirection)->get();
+            $items = $query
+                ->orderBy('is_folder', 'desc')
+                ->orderBy('name', $sortDirection)
+                ->get();
         }
 
         return view('dashboard', [
-            'recentItems' => $recentItems,
             'items' => $items,
-            'folder' => null,
-            'breadcrumbs' => collect()
+            'folder' => $folder,
+            'breadcrumbs' => $breadcrumbs,
         ]);
-    }
-
-    private function showFolderContents(Request $request, File $folder)
-    {
-        $this->authorizeFolderAccess($folder);
-        $folder->touch('last_accessed_at');
-        $user = Auth::user();
-        $breadcrumbs = $this->getBreadcrumbs($folder);
-
-        $baseQuery = File::where('created_by', $user->id)->where('parent_id', $folder->id);
-        $this->applyFilters($baseQuery, $request);
-
-        $sortDirection = $request->input('sort_direction', 'asc');
-
-        // PERUBAHAN: Gunakan get() untuk mengambil semua item, bukan paginate()
-        $items = $baseQuery->orderBy('is_folder', 'desc')->orderBy('name', $sortDirection)->get();
-
-        return view('dashboard', compact('items', 'folder', 'breadcrumbs'));
     }
 
     public function recent()
@@ -79,16 +72,16 @@ class DashboardController extends Controller
     {
         $trashedItems = collect();
         if (Auth::check()) {
-            $trashedItems = File::where('created_by', Auth::id())->onlyTrashed()->orderBy('deleted_at', 'desc')->get();
+            $trashedItems = File::where('created_by', Auth::id())
+                ->onlyTrashed()
+                ->orderBy('deleted_at', 'desc')
+                ->get();
         }
         return view('trash', ['trashedItems' => $trashedItems]);
     }
 
     private function applyFilters($query, Request $request)
     {
-        if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->input('search') . '%');
-        }
         if ($request->filled('modified')) {
             switch ($request->input('modified')) {
                 case 'today':
@@ -106,14 +99,20 @@ class DashboardController extends Controller
 
     public function restore($id)
     {
-        $file = File::onlyTrashed()->where('created_by', Auth::id())->findOrFail($id);
+        $file = File::onlyTrashed()
+            ->where('created_by', Auth::id())
+            ->findOrFail($id);
+
         $file->restore();
         return back()->with('success', 'Item berhasil dikembalikan.');
     }
 
     public function forceDelete($id)
     {
-        $file = File::onlyTrashed()->where('created_by', Auth::id())->findOrFail($id);
+        $file = File::onlyTrashed()
+            ->where('created_by', Auth::id())
+            ->findOrFail($id);
+
         if (!$file->is_folder) {
             Storage::disk('private')->delete($file->path);
         }
@@ -195,7 +194,10 @@ class DashboardController extends Controller
         $breadcrumbs = collect();
         $current = $folder;
         while ($current) {
-            $breadcrumbs->prepend(['name' => $current->name, 'route' => route('dashboard.folder', $current)]);
+            $breadcrumbs->prepend([
+                'name' => $current->name,
+                'route' => route('dashboard.folder', $current)
+            ]);
             $current = File::find($current->parent_id);
         }
         return $breadcrumbs;

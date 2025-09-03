@@ -18,6 +18,11 @@ use App\Http\Controllers\DashboardController;
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/folders/{folder}', [DashboardController::class, 'index'])->name('dashboard.folder');
 
+
+Route::get('/cek-php', function() {
+    return phpinfo();
+});
+
 // Grup rute yang memerlukan login
 Route::middleware(['auth', 'verified'])->group(function () {
     // Profil
