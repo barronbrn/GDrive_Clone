@@ -1,3 +1,4 @@
+<div x-init="currentFolderId = {{ $folder->id }}">
 <nav class="flex items-center text-sm font-medium text-gray-500 mb-4">
     <a href="{{ route('dashboard') }}" class="hover:text-bri-blue">My Files</a>
     @foreach ($breadcrumbs as $breadcrumb)
@@ -63,4 +64,5 @@
     @empty
         <div class="p-6 text-center text-gray-500">Folder ini kosong.</div>
     @endforelse
+</div>
 </div>

@@ -1,3 +1,4 @@
+<div x-init = "currentFolderId = null">
 <style>
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -88,4 +89,5 @@
             @endforelse
         </div>
     </section>
+</div>
 </div>
