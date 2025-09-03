@@ -10,7 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    
+    {{-- @livewireStyles dihapus dari sini --}}
+    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
     <style>
         :root { --bri-blue: #00529B; --bri-blue-dark: #003a70; }
         body { background-color: #f4f7fc; }
@@ -26,7 +30,8 @@
           showCreateFolderModal: false, 
           showUploadFileModal: false,
           showEditModal: false,
-          editItem: {} 
+          editItem: {},
+          currentFolderId: null
       }">
 
     <div class="flex h-screen bg-gray-100">
@@ -34,26 +39,30 @@
 
         <main class="flex-1 p-8 overflow-y-auto">
             @include('partials.header')
-
             <div class="mt-8">
                 @if (session('success'))
                     <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md" role="alert">
                         <p>{{ session('success') }}</p>
                     </div>
                 @endif
+                 @if ($errors->any())
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md" role="alert">
+                        <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+                    </div>
+                @endif
                 
                 {{ $slot }}
-
             </div>
         </main>
     </div>
 
+    <!-- Modals -->
     <div x-show="showCreateFolderModal" x-cloak @keydown.escape.window="showCreateFolderModal = false" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div @click.outside="showCreateFolderModal = false" class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
             <h3 class="text-xl font-semibold mb-4">Create New Folder</h3>
             <form action="{{ route('folder.create') }}" method="POST">
                 @csrf
-                <input type="hidden" name="parent_id" value="{{ $folder?->id ?? null }}">
+                <input type="hidden" name="parent_id" :value="currentFolderId">
                 <input type="text" name="folder_name" placeholder="Enter folder name" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 ring-bri-blue" required>
                 <div class="mt-4 flex justify-end space-x-2">
                     <button type="button" @click="showCreateFolderModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">Cancel</button>
@@ -68,7 +77,7 @@
             <h3 class="text-xl font-semibold mb-4">Upload New File</h3>
             <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <input type="hidden" name="parent_id" value="{{ $folder?->id ?? null }}">
+                <input type="hidden" name="parent_id" :value="currentFolderId">
                 <input type="file" name="file_upload" class="w-full border border-gray-300 rounded-lg p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-bri-blue hover:file:bg-blue-100" required>
                 <div class="mt-4 flex justify-end space-x-2">
                     <button type="button" @click="showUploadFileModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">Cancel</button>
@@ -94,3 +103,4 @@
     </div>
 </body>
 </html>
+
