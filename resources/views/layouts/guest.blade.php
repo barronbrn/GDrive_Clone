@@ -17,14 +17,19 @@
   <!-- Custom Styles -->
   <style>
     body {
-      background: linear-gradient(to bottom right, #0f172a, #1e3a8a, #1e40af);
-      background-image: 
-        url('/images/bg-mega-mendung.jpg'),
-        linear-gradient(to bottom right, #0f172a, #1e3a8a, #1e40af);
-      background-repeat: repeat;
-      background-size: 1420px, cover;
-      background-blend-mode: overlay;
-    }
+  min-height: 100vh; /* pastikan penuh tinggi layar */
+  margin: 0;
+  background: 
+    url('/images/bg-mega-mendung.jpg'),
+    linear-gradient(to bottom right, #0f172a, #1e3a8a, #1e40af);
+  background-repeat: no-repeat;
+  background-size: cover, cover; /* kedua layer di-scale full */
+  background-position: center, center;
+  background-attachment: fixed; /* opsional: bikin efek parallax */
+  background-blend-mode: overlay;
+}
+
+
 
     .container-wrapper {
       position: relative;
