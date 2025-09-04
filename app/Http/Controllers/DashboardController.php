@@ -87,6 +87,10 @@ class DashboardController extends Controller
 
     private function applyFilters($query, Request $request)
     {
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->input('search') . '%');
+        }
+
         if ($request->filled('modified')) {
             switch ($request->input('modified')) {
                 case 'today':
@@ -139,7 +143,7 @@ class DashboardController extends Controller
 
     public function uploadFile(Request $request)
     {
-        $request->validate(['file_upload' => 'required|file|max:20480']);
+        $request->validate(['file_upload' => 'required|file|max:1048576']);
         $uploadedFile = $request->file('file_upload');
         $path = $uploadedFile->store('files/' . Auth::id(), 'private');
         File::create([

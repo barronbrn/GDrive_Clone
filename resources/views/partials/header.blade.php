@@ -1,6 +1,6 @@
 <header class="flex justify-between items-center bg-bri-blue text-white py-3 px-4 rounded-2xl shadow-md">
     <!-- Form Pencarian -->
-    <form method="GET" action="{{-- URL form ini akan diisi oleh halaman konten --}}" class="flex-grow max-w-[250px]">
+    <form method="GET" action="{{ url()->current() }}" class="flex-grow max-w-[250px]">
         <div class="relative">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search files..." 
                    class="w-full bg-white text-gray-700 border border-gray-300 rounded-full py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-bri-blue">
