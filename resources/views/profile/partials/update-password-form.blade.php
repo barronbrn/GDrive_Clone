@@ -5,7 +5,7 @@
             {{ __('Update Password') }}
         </h2>
 
-        {{-- PERUBAHAN DI SINI: Warna teks deskripsi diubah menjadi hitam --}}
+        {{-- CHANGE HERE: Description text color changed to black --}}
         <p class="mt-1 text-sm text-gray-900">
             {{ __('Ensure your account is using a long, random password to stay secure.') }}
         </p>

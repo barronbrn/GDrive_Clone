@@ -28,7 +28,7 @@
         </div>
     @empty
         <div class="p-6 text-center text-gray-500">
-            <p>Tidak ada item yang baru dibuat.</p>
+            <p>No recently created items.</p>
         </div>
     @endforelse
 </div>

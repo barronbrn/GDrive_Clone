@@ -202,8 +202,11 @@ class DashboardController extends Controller
             return back()->withErrors('Cannot create zip file.');
         }
 
+        // Tambahkan folder utama ke dalam zip
+        $zip->addEmptyDir($folder->name);
+
         // Panggil fungsi rekursif untuk menambahkan semua file dan subfolder
-        $this->addFilesToZip($zip, $folder);
+        $this->addFilesToZip($zip, $folder, $folder->name);
 
         $zip->close();
 

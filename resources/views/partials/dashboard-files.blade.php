@@ -84,7 +84,7 @@
                     </div>
                 @endif
             @empty
-                <div class="p-6 text-center text-gray-500">Tidak ada file atau folder.</div>
+                <div class="p-6 text-center text-gray-500">No files or folders.</div>
             @endforelse
         </div>
     </section>
