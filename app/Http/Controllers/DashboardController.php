@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 use Carbon\Carbon;
+use ZipArchive;
 
 class DashboardController extends Controller
 {
@@ -183,37 +184,58 @@ class DashboardController extends Controller
 
     public function downloadFolder(File $folder)
     {
-        // Keamanan: Pastikan user adalah pemilik folder
-        if ($folder->created_by !== \Auth::id() || !$folder->is_folder) {
+        // Keamanan: Pastikan user adalah pemilik folder dan item ini adalah folder
+        if ($folder->created_by !== Auth::id() || !$folder->is_folder) {
             abort(403);
         }
 
         $zip = new ZipArchive();
         $zipFileName = $folder->name . '.zip';
+
+        // Buat file zip sementara di storage
         $zipPath = storage_path('app/temp/' . $zipFileName);
-
-        // Buat file zip sementara
-        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-
-            // Ambil semua file di dalam folder ini (termasuk di dalam subfolder)
-            $files = File::where('created_by', \Auth::id())
-                ->where('path', 'like', $folder->path . '%')
-                ->where('is_folder', false)
-                ->get();
-
-            foreach ($files as $file) {
-                // Tambahkan file ke dalam zip
-                if (Storage::disk('private')->exists($file->path)) {
-                    $relativePath = substr($file->path, strlen($folder->path . '/'));
-                    $zip->addFile(Storage::disk('private')->path($file->path), $relativePath);
-                }
-            }
-
-            $zip->close();
+        if (!Storage::exists('temp')) {
+            Storage::makeDirectory('temp');
         }
+
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+            return back()->withErrors('Cannot create zip file.');
+        }
+
+        // Panggil fungsi rekursif untuk menambahkan semua file dan subfolder
+        $this->addFilesToZip($zip, $folder);
+
+        $zip->close();
 
         // Kirim file zip ke user dan hapus file sementara setelahnya
         return response()->download($zipPath)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Fungsi rekursif untuk menambahkan file dan folder ke dalam arsip zip.
+     */
+    private function addFilesToZip(ZipArchive $zip, File $folder, $parentPath = '')
+    {
+        // PERBAIKAN: Ambil semua item (file & folder) yang parent_id-nya adalah ID folder saat ini
+        $items = File::where('parent_id', $folder->id)
+            ->where('created_by', Auth::id())
+            ->get();
+
+        foreach ($items as $item) {
+            // Buat path relatif di dalam zip
+            $localPath = ltrim($parentPath . '/' . $item->name, '/');
+
+            if ($item->is_folder) {
+                // Jika item adalah folder, buat direktori di dalam zip dan panggil fungsi ini lagi untuk folder tersebut
+                $zip->addEmptyDir($localPath);
+                $this->addFilesToZip($zip, $item, $localPath);
+            } else {
+                // Jika item adalah file, tambahkan ke dalam zip dari storage privat
+                if (Storage::disk('private')->exists($item->path)) {
+                    $zip->addFile(Storage::disk('private')->path($item->path), $localPath);
+                }
+            }
+        }
     }
 
     public function preview(File $file)
