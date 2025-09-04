@@ -137,9 +137,9 @@
 
             <!-- Register Link -->
             <div class="text-center mt-3 text-sm">
-              Belum punya akun? 
+              Don't have an account? 
               <a href="{{ route('register') }}" class="text-blue-600 hover:underline font-medium">
-                Register
+                Sign Up
               </a>
             </div>
           </form>

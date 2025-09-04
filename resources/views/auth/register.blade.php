@@ -114,7 +114,7 @@
 
             <!-- Name -->
             <div>
-              <label for="name" class="block text-sm font-medium mb-1">Nama Lengkap</label>
+              <label for="name" class="block text-sm font-medium mb-1">Full Name</label>
               <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus
                 class="w-full bg-transparent border-b-2 border-pink-500 text-black placeholder-gray-500 focus:outline-none focus:border-pink-400" />
               @error('name')
@@ -144,7 +144,7 @@
 
             <!-- Confirm Password -->
             <div>
-              <label for="password_confirmation" class="block text-sm font-medium mb-1">Konfirmasi Password</label>
+              <label for="password_confirmation" class="block text-sm font-medium mb-1">Confirm Password</label>
               <input id="password_confirmation" type="password" name="password_confirmation" required
                 class="w-full bg-transparent border-b-2 border-purple-500 text-black placeholder-gray-500 focus:outline-none focus:border-purple-400" />
             </div>
@@ -153,13 +153,13 @@
             <div>
               <button type="submit"
                 class="w-full py-2 px-4 bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-800 transition">
-                Daftar
+                Sign Up
               </button>
             </div>
 
             <!-- Login Link -->
             <div class="text-center mt-3 text-sm">
-              Sudah punya akun?
+              Already have an account?
               <a href="{{ route('login') }}" class="text-blue-600 hover:underline font-medium">
                 Login
               </a>

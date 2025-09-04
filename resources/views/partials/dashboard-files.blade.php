@@ -4,7 +4,7 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 
-<div class="space-y-8">
+<div class="space-y-8" >
     @if(Auth::check() && isset($recentItems) && $recentItems->isNotEmpty())
     <section>
         <h2 class="text-xl font-semibold text-gray-700 mb-4">Terakhir dibuka</h2>

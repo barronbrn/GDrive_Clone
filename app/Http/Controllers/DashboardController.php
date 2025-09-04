@@ -13,46 +13,50 @@ class DashboardController extends Controller
 {
     public function index(Request $request, File $folder = null)
     {
-        $items = collect();
-        $breadcrumbs = collect();
+        if (!Auth::check()) {
+            return view('dashboard', [
+                'items' => collect(),
+                'recentItems' => collect(),
+                'folder' => null,
+                'breadcrumbs' => collect()
+            ]);
+        }
 
-        if (Auth::check()) {
-            $user = Auth::user();
+        $user = Auth::user();
+        $this->authorizeFolderAccess($folder);
 
-            $query = File::where('created_by', $user->id);
+        if ($folder) {
+            $folder->touch('last_accessed_at');
+        }
 
-            if ($folder) {
-                // Kalau buka folder → hanya isi folder tsb
-                $query->where('parent_id', $folder->id);
-                $breadcrumbs = $this->getBreadcrumbs($folder);
-            } else {
-                if ($request->filled('search')) {
-                    // Kalau di root + search → cari semua level
-                    $search = $request->search;
-                    $query->where(function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    });
-                } else {
-                    // Kalau di root tanpa search → hanya anak root
-                    $query->whereNull('parent_id');
-                }
-            }
+        // --- Logika Utama untuk mengambil daftar file/folder ---
+        $baseQuery = File::where('created_by', $user->id)
+            ->where('parent_id', $folder?->id);
 
-            // Filter tambahan (modified)
-            $this->applyFilters($query, $request);
+        // Terapkan filter pencarian & modifikasi
+        $this->applyFilters($baseQuery, $request);
 
-            // Sorting
-            $sortDirection = $request->input('sort_direction', 'asc');
-            $items = $query
-                ->orderBy('is_folder', 'desc')
-                ->orderBy('name', $sortDirection)
+        // Terapkan pengurutan
+        $sortDirection = $request->input('sort_direction', 'asc');
+        $items = $baseQuery->orderBy('is_folder', 'desc')
+            ->orderBy('name', $sortDirection)
+            ->get();
+
+        // --- Logika untuk mengambil "Terakhir Dibuka" (HANYA untuk halaman utama) ---
+        $recentItems = collect();
+        if (!$folder) {
+            $recentItems = File::where('created_by', $user->id)
+                ->whereNotNull('last_accessed_at')
+                ->orderBy('last_accessed_at', 'desc')
+                ->limit(8)
                 ->get();
         }
 
         return view('dashboard', [
             'items' => $items,
+            'recentItems' => $recentItems,
             'folder' => $folder,
-            'breadcrumbs' => $breadcrumbs,
+            'breadcrumbs' => $this->getBreadcrumbs($folder),
         ]);
     }
 
@@ -175,6 +179,41 @@ class DashboardController extends Controller
         $this->authorizeFileAccess($file);
         $file->touch('last_accessed_at');
         return Storage::disk('private')->download($file->path, $file->name);
+    }
+
+    public function downloadFolder(File $folder)
+    {
+        // Keamanan: Pastikan user adalah pemilik folder
+        if ($folder->created_by !== \Auth::id() || !$folder->is_folder) {
+            abort(403);
+        }
+
+        $zip = new ZipArchive();
+        $zipFileName = $folder->name . '.zip';
+        $zipPath = storage_path('app/temp/' . $zipFileName);
+
+        // Buat file zip sementara
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+
+            // Ambil semua file di dalam folder ini (termasuk di dalam subfolder)
+            $files = File::where('created_by', \Auth::id())
+                ->where('path', 'like', $folder->path . '%')
+                ->where('is_folder', false)
+                ->get();
+
+            foreach ($files as $file) {
+                // Tambahkan file ke dalam zip
+                if (Storage::disk('private')->exists($file->path)) {
+                    $relativePath = substr($file->path, strlen($folder->path . '/'));
+                    $zip->addFile(Storage::disk('private')->path($file->path), $relativePath);
+                }
+            }
+
+            $zip->close();
+        }
+
+        // Kirim file zip ke user dan hapus file sementara setelahnya
+        return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 
     public function preview(File $file)

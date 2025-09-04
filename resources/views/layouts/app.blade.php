@@ -7,11 +7,12 @@
     
     <title>{{ $title ?? 'Dashboard' }} - DataBOX</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <!-- Memuat gaya Filled (Material+Symbols) dan Outlined (Material+Symbols+Outlined) -->
+    {{-- <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" /> --}}
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols&family=Material+Symbols+Outlined" rel="stylesheet" />
+    
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
-    
-    {{-- @livewireStyles dihapus dari sini --}}
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -23,6 +24,18 @@
         .text-bri-blue { color: var(--bri-blue); }
         .ring-bri-blue:focus { --tw-ring-color: var(--bri-blue); }
         [x-cloak] { display: none !important; }
+
+        /* Gaya untuk ikon Outlined (FILL: 0) */
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
+        }
+
+        /* Gaya untuk ikon Filled (FILL: 1) */
+        .material-symbols {
+          font-variation-settings:
+          'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24
+        }
     </style>
 </head>
 <body class="font-sans text-gray-800 antialiased" 
@@ -103,4 +116,3 @@
     </div>
 </body>
 </html>
-
