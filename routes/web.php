@@ -43,7 +43,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Aksi File & Download
     Route::get('/file/download/{file}', [DashboardController::class, 'download'])->name('file.download');
     Route::get('/file/preview/{file}', [DashboardController::class, 'preview'])->name('file.preview');
-
+    Route::get('/folder/download/{folder}', [DashboardController::class, 'downloadFolder'])->name('folder.download');
+    
     // === RUTE BARU UNTUK TRASH ===
     Route::post('/trash/restore/{id}', [DashboardController::class, 'restore'])->name('trash.restore');
     Route::delete('/trash/force-delete/{id}', [DashboardController::class, 'forceDelete'])->name('trash.forceDelete');
