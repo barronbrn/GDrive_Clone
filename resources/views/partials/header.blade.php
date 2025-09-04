@@ -7,7 +7,9 @@
             background-blend-mode: multiply, normal;
         ">
     <!-- Form Pencarian -->
-    <form method="GET" action="{{ url()->current() }}" class="flex-grow max-w-md">
+
+    <form method="GET" action="{{ url()->current() }}" class="flex-grow max-w-[250px]">
+
         <div class="relative">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                 <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">

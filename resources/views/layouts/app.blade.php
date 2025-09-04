@@ -86,15 +86,64 @@
     </div>
     
     <div x-show="showUploadFileModal" x-cloak @keydown.escape.window="showUploadFileModal = false" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div @click.outside="showUploadFileModal = false" class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+        <div @click.outside="showUploadFileModal = false" 
+             class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" 
+             x-data="{
+                progress: 0,
+                error: '',
+                uploading: false,
+                uploadFile() {
+                    const form = this.$refs.uploadForm;
+                    const fileInput = this.$refs.fileInput;
+                    if (fileInput.files.length === 0) {
+                        this.error = 'Please select a file to upload.';
+                        return;
+                    }
+                    const data = new FormData(form);
+                    this.uploading = true;
+                    this.progress = 0;
+                    this.error = '';
+                    const config = {
+                        onUploadProgress: (progressEvent) => {
+                            this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        },
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                    };
+                    axios.post('{{ route('file.upload') }}', data, config)
+                        .then(response => {
+                            location.reload();
+                        })
+                        .catch(error => {
+                            this.uploading = false;
+                            this.progress = 0;
+                            if (error.response && error.response.status === 422) {
+                                this.error = error.response.data.errors.file_upload[0];
+                            } else {
+                                this.error = 'Upload failed. The file may be too large or a server error occurred.';
+                            }
+                        });
+                }
+             }">
             <h3 class="text-xl font-semibold mb-4">Upload New File</h3>
-            <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
-                @csrf
+            <form x-ref="uploadForm" @submit.prevent="uploadFile()">
                 <input type="hidden" name="parent_id" :value="currentFolderId">
-                <input type="file" name="file_upload[]" multiple class="w-full border border-gray-300 rounded-lg p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-bri-blue hover:file:bg-blue-100" required>
+
+                <input type="file" name="file_upload" x-ref="fileInput" class="w-full border border-gray-300 rounded-lg p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-bri-blue hover:file:bg-blue-100" required :disabled="uploading">
+                
+                <div x-show="error" class="mt-2 text-sm text-red-600" x-text="error"></div>
+
+                <!-- Progress Bar -->
+                <div x-show="uploading" class="mt-4 w-full bg-gray-200 rounded-full">
+                    <div class="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" :style="`width: ${progress}%`" x-text="progress > 0 ? `${progress}%` : ''"></div>
+                </div>
+
+
                 <div class="mt-4 flex justify-end space-x-2">
-                    <button type="button" @click="showUploadFileModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-bri-blue text-white rounded-lg hover:bg-bri-blue-dark">Upload</button>
+                    <button type="button" @click="showUploadFileModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300" :disabled="uploading">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-bri-blue text-white rounded-lg hover:bg-bri-blue-dark" :disabled="uploading">
+                        <span x-show="!uploading">Upload</span>
+                        <span x-show="uploading">Uploading...</span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -114,5 +163,52 @@
             </form>
         </div>
     </div>
+<script>
+    function uploadFileWithProgress(event) {
+        const form = event.target;
+        const data = new FormData();
+        const fileInput = document.getElementById('file_upload_input');
+
+        if (fileInput.files.length === 0) {
+            alert('Please select a file to upload.');
+            return;
+        }
+
+        data.append('file_upload', fileInput.files[0]);
+        data.append('parent_id', form.querySelector('input[name="parent_id"]').value);
+
+        const alpineComponent = Alpine.find(form.parentElement);
+        alpineComponent.uploading = true;
+        alpineComponent.progress = 0;
+        alpineComponent.error = '';
+
+        const config = {
+            onUploadProgress: (progressEvent) => {
+                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                alpineComponent.progress = percentCompleted;
+            },
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        };
+
+        axios.post('{{ route('file.upload') }}', data, config)
+            .then(response => {
+                alpineComponent.uploading = false;
+                alpineComponent.showUploadFileModal = false;
+                location.reload();
+            })
+            .catch(error => {
+                alpineComponent.uploading = false;
+                alpineComponent.progress = 0;
+                if (error.response && error.response.status === 422) {
+                    const errors = error.response.data.errors;
+                    alpineComponent.error = Object.values(errors).flat().join(' ');
+                } else {
+                    alpineComponent.error = 'An unexpected error occurred. The file might be too large or the connection was lost.';
+                }
+            });
+    }
+</script>
 </body>
 </html>
