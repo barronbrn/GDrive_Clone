@@ -127,6 +127,7 @@
             <h3 class="text-xl font-semibold mb-4">Upload New File</h3>
             <form x-ref="uploadForm" @submit.prevent="uploadFile()">
                 <input type="hidden" name="parent_id" :value="currentFolderId">
+
                 <input type="file" name="file_upload" x-ref="fileInput" class="w-full border border-gray-300 rounded-lg p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-bri-blue hover:file:bg-blue-100" required :disabled="uploading">
                 
                 <div x-show="error" class="mt-2 text-sm text-red-600" x-text="error"></div>
@@ -135,6 +136,7 @@
                 <div x-show="uploading" class="mt-4 w-full bg-gray-200 rounded-full">
                     <div class="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" :style="`width: ${progress}%`" x-text="progress > 0 ? `${progress}%` : ''"></div>
                 </div>
+
 
                 <div class="mt-4 flex justify-end space-x-2">
                     <button type="button" @click="showUploadFileModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300" :disabled="uploading">Cancel</button>

@@ -1,13 +1,6 @@
 <aside class="w-64 bg-white flex flex-col p-6 border-r border-gray-200">
-    <div class="flex items-center space-x-3 mb-10">
-        <div class="p-2 bg-bri-blue rounded-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0l3-3m0 0l3 3m-3-3v12">
-                </path>
-            </svg>
-        </div>
-        <span class="text-2xl font-bold text-bri-blue">DataBOX</span>
+    <div class="flex items-center justify-center mb-10">
+        <img src="{{ asset('images/logo-bri.png') }}" alt="BRI Logo" class="h-12 w-auto">
     </div>
 
     <div x-data="{ open: false }" class="relative mb-6">
@@ -43,11 +36,11 @@
         @endauth
     </div>
 
-    <nav class="mt-10 flex-1">
+    <nav class="mt-6 flex-1">
         <ul class="space-y-2">
             <li>
-                <a href="{{ route('dashboard') }}" 
-                   class="flex items-center space-x-3 p-3 rounded-lg transition-colors {{ request()->routeIs('dashboard*') ? 'text-bri-blue font-semibold bg-blue-100' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100' }}">
+                <a href="{{ route('file.index') }}" 
+                   class="flex items-center space-x-3 p-3 rounded-lg transition-colors {{ request()->routeIs('file.index') || request()->routeIs('file.folder') ? 'text-bri-blue font-semibold bg-blue-100' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100' }}">
                     <span>Dashboard</span>
                 </a>
             </li>

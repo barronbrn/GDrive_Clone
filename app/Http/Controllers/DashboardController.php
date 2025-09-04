@@ -5,73 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Response;
-use Carbon\Carbon;
-use ZipArchive;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request, File $folder = null)
-    {
-        if (!Auth::check()) {
-            return view('dashboard', [
-                'items' => collect(),
-                'recentItems' => collect(),
-                'folder' => null,
-                'breadcrumbs' => collect()
-            ]);
-        }
+    // The main 'index' method is now handled by FileController.
+    // This controller will handle the other dashboard-related views.
 
-        $user = Auth::user();
-        $this->authorizeFolderAccess($folder);
-
-        if ($folder) {
-            $folder->touch('last_accessed_at');
-        }
-
-        // --- Logika Utama untuk mengambil daftar file/folder ---
-        $baseQuery = File::where('created_by', $user->id)
-            ->where('parent_id', $folder?->id);
-
-        // Terapkan filter pencarian & modifikasi
-        $this->applyFilters($baseQuery, $request);
-
-        // Terapkan pengurutan
-        $sortDirection = $request->input('sort_direction', 'asc');
-        $items = $baseQuery->orderBy('is_folder', 'desc')
-            ->orderBy('name', $sortDirection)
-            ->get();
-
-        // --- Logika untuk mengambil "Terakhir Dibuka" (HANYA untuk halaman utama) ---
-        $recentItems = collect();
-        if (!$folder) {
-            $recentItems = File::where('created_by', $user->id)
-                ->whereNotNull('last_accessed_at')
-                ->orderBy('last_accessed_at', 'desc')
-                ->limit(8)
-                ->get();
-        }
-
-        return view('dashboard', [
-            'items' => $items,
-            'recentItems' => $recentItems,
-            'folder' => $folder,
-            'breadcrumbs' => $this->getBreadcrumbs($folder),
-        ]);
-    }
-
-    public function recent()
+    public function recent(Request $request)
     {
         $recentItems = collect();
         if (Auth::check()) {
-            $recentItems = File::where('created_by', Auth::id())
+            $query = File::where('created_by', Auth::id())
                 ->orderBy('created_at', 'desc')
-                ->limit(50)
-                ->get();
-        }
-        return view('recent', ['recentItems' => $recentItems]);
-    }
+                ->limit(50);
 
     public function trash()
     {
@@ -103,43 +49,9 @@ class DashboardController extends Controller
                     $query->whereMonth('updated_at', Carbon::now()->month);
                     break;
             }
+
+            $recentItems = $query->get();
         }
-    }
-
-    public function restore($id)
-    {
-        $file = File::onlyTrashed()
-            ->where('created_by', Auth::id())
-            ->findOrFail($id);
-
-        $file->restore();
-        return back()->with('success', 'Item berhasil dikembalikan.');
-    }
-
-    public function forceDelete($id)
-    {
-        $file = File::onlyTrashed()
-            ->where('created_by', Auth::id())
-            ->findOrFail($id);
-
-        if (!$file->is_folder) {
-            Storage::disk('private')->delete($file->path);
-        }
-        $file->forceDelete();
-        return back()->with('success', 'Item berhasil dihapus permanen.');
-    }
-
-    public function createFolder(Request $request)
-    {
-        $request->validate(['folder_name' => 'required|string|max:255']);
-        File::create([
-            'name' => $request->folder_name,
-            'is_folder' => true,
-            'created_by' => Auth::id(),
-            'parent_id' => $request->parent_id,
-        ]);
-        return back()->with('success', 'Folder berhasil dibuat.');
-    }
 
     public function uploadFile(Request $request)
     {
@@ -218,70 +130,22 @@ class DashboardController extends Controller
         return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 
-    /**
-     * Fungsi rekursif untuk menambahkan file dan folder ke dalam arsip zip.
-     */
-    private function addFilesToZip(ZipArchive $zip, File $folder, $parentPath = '')
+    public function trash(Request $request)
     {
-        // PERBAIKAN: Ambil semua item (file & folder) yang parent_id-nya adalah ID folder saat ini
-        $items = File::where('parent_id', $folder->id)
-            ->where('created_by', Auth::id())
-            ->get();
+        $trashedItems = collect();
+        if (Auth::check()) {
+            $query = File::where('created_by', Auth::id())
+                ->onlyTrashed()
+                ->orderBy('deleted_at', 'desc');
 
-        foreach ($items as $item) {
-            // Buat path relatif di dalam zip
-            $localPath = ltrim($parentPath . '/' . $item->name, '/');
-
-            if ($item->is_folder) {
-                // Jika item adalah folder, buat direktori di dalam zip dan panggil fungsi ini lagi untuk folder tersebut
-                $zip->addEmptyDir($localPath);
-                $this->addFilesToZip($zip, $item, $localPath);
-            } else {
-                // Jika item adalah file, tambahkan ke dalam zip dari storage privat
-                if (Storage::disk('private')->exists($item->path)) {
-                    $zip->addFile(Storage::disk('private')->path($item->path), $localPath);
-                }
+            if ($request->filled('search')) {
+                $search = $request->input('search');
+                $query->where('name', 'like', '%'.$search.'%');
             }
-        }
-    }
 
-    public function preview(File $file)
-    {
-        $this->authorizeFileAccess($file);
-        $file->touch('last_accessed_at');
-        $path = Storage::disk('private')->path($file->path);
-        if (in_array($file->mime_type, ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain'])) {
-            return Response::file($path);
+            $trashedItems = $query->get();
         }
-        return $this->download($file);
-    }
 
-    private function getBreadcrumbs($folder)
-    {
-        if (!$folder) return collect();
-        $breadcrumbs = collect();
-        $current = $folder;
-        while ($current) {
-            $breadcrumbs->prepend([
-                'name' => $current->name,
-                'route' => route('dashboard.folder', $current)
-            ]);
-            $current = File::find($current->parent_id);
-        }
-        return $breadcrumbs;
-    }
-
-    private function authorizeFolderAccess($folder)
-    {
-        if ($folder && $folder->created_by !== Auth::id()) {
-            abort(403, 'Unauthorized Access');
-        }
-    }
-
-    private function authorizeFileAccess(File $file)
-    {
-        if ($file->is_folder || $file->created_by !== Auth::id()) {
-            abort(403);
-        }
+        return view('trash', ['trashedItems' => $trashedItems]);
     }
 }
