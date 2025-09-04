@@ -17,8 +17,8 @@
         <div x-data="{ open: false }" class="relative ml-4">
             <button 
                 @click="open = !open" 
-                :class="open ? 'bg-white text-bri-blue' : 'bg-bri-blue text-white'" 
-                class="flex items-center space-x-3 text-sm font-medium focus:outline-none transition duration-150 ease-in-out rounded-full p-2">
+                class="flex items-center space-x-3 text-sm font-medium focus:outline-none transition duration-150 ease-in-out rounded-full p-2 bg-bri-blue text-white hover:bg-bri-blue-dark"
+                :class="{ 'bg-bri-blue-dark': open }">
                 <img class="h-10 w-10 rounded-full object-cover border-2 border-white" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=00529B&background=EBF4FF" alt="{{ Auth::user()->name }}">
                 <div class="text-sm font-medium">{{ Auth::user()->name }}</div>
                 <div class="ml-1">
@@ -30,11 +30,11 @@
 
             <div x-show="open" @click.outside="open = false" x-cloak class="absolute z-50 mt-2 w-48 rounded-2xl shadow-lg origin-top-right right-0 bg-white overflow-hidden">
                 <div class="py-1">
-                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-bri-blue hover:text-white rounded-lg">Profile</a>
+                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-900 hover:bg-blue-200 hover:text-gray ">Profile</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" 
-                           class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-bri-blue hover:text-white rounded-lg">Log Out</a>
+                           class="block w-full text-left px-4 py-2 text-sm text-gray-900 hover:bg-blue-200 hover:text-gray active:bg-bri-blue-dark active:text-white ">Log Out</a>
                     </form>
                 </div>
             </div>

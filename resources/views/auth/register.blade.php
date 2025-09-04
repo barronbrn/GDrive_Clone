@@ -106,7 +106,7 @@
         <img src="/images/logo-bri.PNG" alt="Logo BRI">
       </div>
 
-      <!-- Kontainer Kanan -->
+      <!-- Right Container -->
       <div class="container-right">
         <div class="w-full max-w-sm">
           <form method="POST" action="{{ route('register') }}" class="space-y-4">

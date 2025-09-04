@@ -62,7 +62,7 @@
             </div>
         @endif
     @empty
-        <div class="p-6 text-center text-gray-500">Folder ini kosong.</div>
+        <div class="p-6 text-center text-gray-500">This folder is empty.</div>
     @endforelse
 </div>
 </div>

@@ -20,7 +20,7 @@
         @method('patch')
 
         <div>
-            <x-input-label for="name" :value="__('Nama Lengkap')" class="text-gray-900" />
+            <x-input-label for="name" :value="__('Full Name')" class="text-gray-900" />
             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
