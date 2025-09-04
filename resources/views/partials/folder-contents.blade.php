@@ -19,7 +19,7 @@
                 <span x-show="sortDirection === 'asc'" class="material-symbols-outlined ml-1 text-sm">arrow_upward</span>
                 <span x-show="sortDirection === 'desc'" class="material-symbols-outlined ml-1 text-sm">arrow_downward</span>
             </a>
-            <form method="GET" action="{{ route('dashboard.folder', $folder) }}">
+            <form method="GET" action="{{ route('file.folder', $folder) }}">
                 <input type="hidden" name="search" value="{{ request('search') }}">
                 <input type="hidden" name="sort_direction" value="{{ request('sort_direction', 'asc') }}">
                 <select name="modified" onchange="this.form.submit()" class="border-gray-300 rounded-lg focus:ring-bri-blue focus:border-bri-blue text-sm">
@@ -44,9 +44,9 @@
     @forelse ($items as $item)
         @if ($item->is_folder)
             <div class="grid grid-cols-12 gap-4 items-center px-6 py-4 hover:bg-gray-50 border-b last:border-b-0 group">
-                <a href="{{ route('dashboard.folder', $item) }}" class="col-span-12 md:col-span-5 flex items-center space-x-3"><x-file-icon :item="$item" /><span class="font-medium truncate">{{ $item->name }}</span></a>
+                <a href="{{ route('file.folder', $item) }}" class="col-span-12 md:col-span-5 flex items-center space-x-3"><x-file-icon :item="$item" /><span class="font-medium truncate">{{ $item->name }}</span></a>
                 <div class="col-span-6 md:col-span-3 text-sm text-gray-500">{{ $item->updated_at->format('d M, Y') }}</div>
-                <div class="col-span-6 md:col-span-2 text-sm text-gray-500">—</div>
+                <div class="col-span-6 md:col-span-2 text-sm text-gray-500">{{ \Illuminate\Support\Number::fileSize($item->getFolderSize()) }}</div>
                 <div class="col-span-12 md:col-span-2 text-right">
                     <div x-data="{ open: false }" class="relative inline-block text-left"><button @click="open = !open" class="text-black p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-bri-blue"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"></path></svg></button><div x-show="open" @click.outside="open = false" x-cloak class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20"><div class="py-1"><a href="{{ route('folder.download', $item) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download</a><a href="#" @click.prevent="showEditModal = true; editItem = { id: {{ $item->id }}, name: '{{ addslashes($item->name) }}', action: '{{ route('file.update', $item) }}' }; open = false" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Rename</a><form action="{{ route('file.delete', $item) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus folder ini?')">@csrf @method('DELETE')<button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Delete</button></form></div></div></div>
                 </div>

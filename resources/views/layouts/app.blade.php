@@ -91,7 +91,7 @@
             <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="parent_id" :value="currentFolderId">
-                <input type="file" name="file_upload" class="w-full border border-gray-300 rounded-lg p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-bri-blue hover:file:bg-blue-100" required>
+                <input type="file" name="file_upload[]" multiple class="w-full border border-gray-300 rounded-lg p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-bri-blue hover:file:bg-blue-100" required>
                 <div class="mt-4 flex justify-end space-x-2">
                     <button type="button" @click="showUploadFileModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">Cancel</button>
                     <button type="submit" class="px-4 py-2 bg-bri-blue text-white rounded-lg hover:bg-bri-blue-dark">Upload</button>

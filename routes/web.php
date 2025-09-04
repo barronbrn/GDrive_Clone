@@ -1,8 +1,9 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,40 +15,41 @@ use App\Http\Controllers\DashboardController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-// Halaman utama (dashboard)
-Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/folders/{folder}', [DashboardController::class, 'index'])->name('dashboard.folder');
 
-
-Route::get('/cek-php', function() {
+// Publicly accessible test route
+Route::get('/cek-php', function () {
     return phpinfo();
 });
 
-// Grup rute yang memerlukan login
+// Routes requiring authentication
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Profil
+    // Main file and folder browsing
+    Route::get('/', [FileController::class, 'index'])->name('file.index');
+    Route::get('/folders/{folder}', [FileController::class, 'index'])->name('file.folder');
+
+    // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Menu Navigasi Utama
+    // Dashboard view routes
     Route::get('/recent', [DashboardController::class, 'recent'])->name('recent');
     Route::get('/trash', [DashboardController::class, 'trash'])->name('trash');
 
-    // Aksi CRUD
-    Route::post('/folder/create', [DashboardController::class, 'createFolder'])->name('folder.create');
-    Route::post('/file/upload', [DashboardController::class, 'uploadFile'])->name('file.upload');
-    Route::delete('/file/delete/{file}', [DashboardController::class, 'delete'])->name('file.delete');
-    Route::patch('/file/update/{file}', [DashboardController::class, 'updateName'])->name('file.update');
+    // File and folder actions
+    Route::post('/folder/create', [FileController::class, 'createFolder'])->name('folder.create');
+    Route::post('/file/upload', [FileController::class, 'uploadFile'])->name('file.upload');
+    Route::patch('/file/update/{file}', [FileController::class, 'update'])->name('file.update');
+    Route::delete('/file/delete/{file}', [FileController::class, 'destroy'])->name('file.destroy');
 
-    // Aksi File & Download
-    Route::get('/file/download/{file}', [DashboardController::class, 'download'])->name('file.download');
-    Route::get('/file/preview/{file}', [DashboardController::class, 'preview'])->name('file.preview');
-    Route::get('/folder/download/{folder}', [DashboardController::class, 'downloadFolder'])->name('folder.download');
-    
-    // === RUTE BARU UNTUK TRASH ===
-    Route::post('/trash/restore/{id}', [DashboardController::class, 'restore'])->name('trash.restore');
-    Route::delete('/trash/force-delete/{id}', [DashboardController::class, 'forceDelete'])->name('trash.forceDelete');
+    // File and folder downloads/previews
+    Route::get('/file/download/{file}', [FileController::class, 'download'])->name('file.download');
+    Route::get('/file/preview/{file}', [FileController::class, 'preview'])->name('file.preview');
+    Route::get('/folder/download/{folder}', [FileController::class, 'downloadFolder'])->name('folder.download');
+
+    // Trash actions
+    Route::post('/trash/restore/{id}', [FileController::class, 'restore'])->name('trash.restore');
+    Route::delete('/trash/force-delete/{id}', [FileController::class, 'forceDelete'])->name('trash.forceDelete');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
