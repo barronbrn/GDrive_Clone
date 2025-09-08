@@ -71,15 +71,49 @@
 
     <!-- Modals -->
     <div x-show="showCreateFolderModal" x-cloak @keydown.escape.window="showCreateFolderModal = false" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div @click.outside="showCreateFolderModal = false" class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+        <div @click.outside="showCreateFolderModal = false" 
+             class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
+             x-data="{
+                folderName: '',
+                error: '',
+                creating: false,
+                createFolder(currentFolderId) {
+                    if (!this.folderName.trim()) {
+                        this.error = 'Folder name is required.';
+                        return;
+                    }
+                    this.creating = true;
+                    this.error = '';
+
+                    const data = new FormData();
+                    data.append('folder_name', this.folderName);
+                    data.append('parent_id', currentFolderId);
+
+                    axios.post('{{ route('folder.create') }}', data, { headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }})
+                        .then(response => {
+                            location.reload();
+                        })
+                        .catch(error => {
+                            this.creating = false;
+                            if (error.response && error.response.status === 422) {
+                                this.error = error.response.data.errors.folder_name[0];
+                            } else {
+                                this.error = 'Could not create folder. Please try again.';
+                            }
+                        });
+                }
+             }">
             <h3 class="text-xl font-semibold mb-4">Create New Folder</h3>
-            <form action="{{ route('folder.create') }}" method="POST">
-                @csrf
+            <form @submit.prevent="createFolder(currentFolderId)">
                 <input type="hidden" name="parent_id" :value="currentFolderId">
-                <input type="text" name="folder_name" placeholder="Enter folder name" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 ring-bri-blue" required>
+                <input type="text" name="folder_name" x-model="folderName" placeholder="Enter folder name" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 ring-bri-blue" required :disabled="creating">
+                <div x-show="error" class="mt-2 text-sm text-red-600" x-text="error"></div>
                 <div class="mt-4 flex justify-end space-x-2">
-                    <button type="button" @click="showCreateFolderModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-bri-blue text-white rounded-lg hover:bg-bri-blue-dark">Create</button>
+                    <button type="button" @click="showCreateFolderModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300" :disabled="creating">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-bri-blue text-white rounded-lg hover:bg-bri-blue-dark" :disabled="creating">
+                        <span x-show="!creating">Create</span>
+                        <span x-show="creating">Creating...</span>
+                    </button>
                 </div>
             </form>
         </div>

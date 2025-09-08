@@ -62,17 +62,18 @@ class FileController extends Controller
             'parent_id' => $request->parent_id,
         ]);
 
-        return back()->with('success', 'Folder berhasil dibuat.');
+        return response()->json(['success' => 'Folder berhasil dibuat.']);
     }
 
     public function uploadFile(Request $request)
     {
         $request->validate([
-            'file_upload.*' => 'required|file|max:20480', // 20MB limit per file
+            'file_upload' => 'required|file|max:20480', // 20MB limit per file
             'parent_id' => 'nullable|exists:files,id,created_by,'.Auth::id(),
         ]);
 
-        foreach ($request->file('file_upload') as $uploadedFile) {
+        if ($request->hasFile('file_upload')) {
+            $uploadedFile = $request->file('file_upload');
             $path = $uploadedFile->store('files/'.Auth::id(), 'private');
             File::create([
                 'name' => $uploadedFile->getClientOriginalName(),
@@ -85,7 +86,7 @@ class FileController extends Controller
             ]);
         }
 
-        return back()->with('success', 'File berhasil diupload.');
+        return response()->json(['success' => 'File berhasil diupload.']);
     }
 
     public function update(Request $request, File $file)
