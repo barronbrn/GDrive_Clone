@@ -1,152 +1,80 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Laravel') }}</title>
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.bunny.net">
-  <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 
-  <!-- Scripts -->
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-  <!-- Custom Styles -->
-  <style>
-    body {
-  min-height: 100vh; /* pastikan penuh tinggi layar */
-  margin: 0;
-  background: 
-    url('/images/bg-mega-mendung.jpg'),
-    linear-gradient(to bottom right, #0f172a, #1e3a8a, #1e40af);
-  background-repeat: no-repeat;
-  background-size: cover, cover; /* kedua layer di-scale full */
-  background-position: center, center;
-  background-attachment: fixed; /* opsional: bikin efek parallax */
-  background-blend-mode: overlay;
-}
+    <!-- Custom Styles -->
+    <style>
+        body {
+            background-color: #f0f4f8; /* Fallback color */
+        }
+        .bg-image-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('{{ asset('images/bg-mega-mendung.jpg') }}');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(70%);
+            z-index: 0;
+        }
 
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
+        .animate-container {
+            animation: fadeInUp 0.7s ease-out forwards;
+        }
 
-    .container-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 800px;
-      height: 400px;
-      margin: auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .container-left,
-    .container-right {
-      position: relative;
-      width: 100%;
-      max-width: 400px;
-      height: 100%;
-      background-color: white;
-      padding: 1.5rem;
-    }
-
-    .container-left {
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      border-top-left-radius: 1rem;
-      border-bottom-left-radius: 1rem;
-      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .container-left img {
-      width: 450px;
-      height: auto;
-      margin-bottom: 1rem;
-    }
-
-    .container-left p {
-      text-align: center;
-      color: #374151;
-    }
-
-    .container-right {
-      background-color: white;
-      color: black;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      border-top-right-radius: 1rem;
-      border-bottom-right-radius: 1rem;
-      box-shadow: 4px 0 15px rgba(0, 0, 0, 0);
-    }
-  </style>
+        .stagger-children > * {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+            animation-delay: var(--delay, 0s);
+        }
+    </style>
 </head>
-<body class="font-sans antialiased text-black">
-  <div class="min-h-screen flex items-center justify-center">
-    <div class="container-wrapper">
-      
-      <!-- Kontainer Kiri -->
-      <div class="container-left">
-        <img src="/images/logo-bri.PNG" alt="Logo BRI">
-      </div>
+<body class="font-sans antialiased text-gray-900">
+    <div class="bg-image-container"></div>
+    <div class="min-h-screen flex items-center justify-center p-4 relative z-10">
+        <div class="w-full max-w-4xl mx-auto animate-container">
+            <div class="bg-white/95 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden grid md:grid-cols-2">
+                <!-- Left Side: Branding -->
+                <div class="p-12 bg-white text-gray-800 flex flex-col justify-center items-center text-center relative stagger-children">
+                    <div class="relative z-10">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome!</h2>
+                        <a href="/" class="inline-block mb-2">
+                            <img src="{{ asset('images/logo-bri.png') }}" alt="DataBOX Logo" class="w-64 h-auto">
+                        </a>
+                        <p class="text-gray-600">A secure and reliable cloud storage solution from BRI.</p>                    </div>
+                </div>
 
-      <!-- Kontainer Kanan -->
-      <div class="container-right">
-        <div class="w-full max-w-sm">
-          <form method="POST" action="{{ route('login') }}" class="space-y-4">
-            @csrf
-
-            <!-- Email -->
-            <div>
-              <label for="email" class="block text-sm font-medium mb-1">Email</label>
-              <input id="email" type="email" name="email" required
-                class="w-full bg-transparent border-b-2 border-pink-500 text-black placeholder-gray-500 focus:outline-none focus:border-pink-400" />
+                <!-- Right Side: Form -->
+                <div class="p-12 bg-blue-900 text-white stagger-children" style="--delay: 0.2s;">
+                    {{ $slot }}
+                </div>
             </div>
-
-            <!-- Password -->
-            <div>
-              <label for="password" class="block text-sm font-medium mb-1">Password</label>
-              <input id="password" type="password" name="password" required
-                class="w-full bg-transparent border-b-2 border-purple-500 text-black placeholder-gray-500 focus:outline-none focus:border-purple-400" />
-            </div>
-
-            <!-- Remember Me & Forgot Password -->
-            <div class="flex items-center justify-between text-sm">
-              <label class="flex items-center">
-                <input type="checkbox" name="remember" class="mr-2 rounded">
-                Remember me
-              </label>
-              <a href="{{ route('password.request') }}" class="text-blue-600 hover:underline">
-                Forgot password?
-              </a>
-            </div>
-
-            <!-- Submit Button -->
-            <div>
-              <button type="submit"
-                class="w-full py-2 px-4 bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-800 transition">
-                Login
-              </button>
-            </div>
-
-            <!-- Register Link -->
-            <div class="text-center mt-3 text-sm">
-              Don't have an account? 
-              <a href="{{ route('register') }}" class="text-blue-600 hover:underline font-medium">
-                Sign Up
-              </a>
-            </div>
-          </form>
         </div>
-      </div>
-
     </div>
-  </div>
 </body>
 </html>
