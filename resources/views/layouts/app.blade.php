@@ -87,7 +87,9 @@
 
                     const data = new FormData();
                     data.append('folder_name', this.folderName);
-                    data.append('parent_id', currentFolderId);
+                    if (currentFolderId) {
+                        data.append('parent_id', currentFolderId);
+                    }
 
                     axios.post('{{ route('folder.create') }}', data, { headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }})
                         .then(response => {
@@ -134,7 +136,9 @@
                     }
                     const data = new FormData();
                     data.append('file_upload', fileInput.files[0]);
-                    data.append('parent_id', currentFolderId);
+                    if (currentFolderId) {
+                        data.append('parent_id', currentFolderId);
+                    }
 
                     this.uploading = true;
                     this.progress = 0;
