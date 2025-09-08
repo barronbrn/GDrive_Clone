@@ -60,14 +60,15 @@
         <div class="w-full max-w-4xl mx-auto animate-container">
             <div class="bg-white/95 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden grid md:grid-cols-2">
                 <!-- Left Side: Branding -->
-                <div class="p-12 bg-white text-gray-800 flex flex-col text-center relative stagger-children">
-                    <h2 class="text-3xl font-bold text-gray-800 mt-4">Welcome!</h2>
-                    <div class="flex-grow flex items-center justify-center">
-                        <a href="/">
+
+                <div class="p-12 bg-white text-gray-800 flex flex-col justify-center items-center text-center relative stagger-children">
+                    <div class="relative z-10">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome!</h2>
+                        <a href="/" class="inline-block mb-2">
                             <img src="{{ asset('images/logo-bri.png') }}" alt="DataBOX Logo" class="w-64 h-auto">
                         </a>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-28">A secure and reliable cloud storage solution presented by BRI.</p>
+                        <p class="text-gray-600">A secure and reliable cloud storage solution from BRI.</p>                    </div>
+
                 </div>
 
                 <!-- Right Side: Form -->
