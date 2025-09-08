@@ -1,5 +1,10 @@
 <header class="flex justify-between items-center bg-bri-blue text-white py-3 px-6 rounded-2xl shadow-lg relative"
-         style="background-image: url('{{ asset('images/bg-mega-mendung.jpg') }}'); background-blend-mode: overlay; background-size: cover; background-position: center;">
+        style="
+            background-image: url('{{ asset('images/bg-mega-mendung.jpg') }}');
+            background-blend-mode: overlay;
+            background-size: cover;
+            background-position: center;
+        ">
     <div class="absolute inset-0 bg-bri-blue opacity-80"></div>
     <div class="relative z-10 flex justify-between items-center w-full">
         <!-- Form Pencarian -->
@@ -15,7 +20,9 @@
             <!-- Dropdown Profile -->
             <div x-data="{ open: false }" class="relative ml-6">
                 <button @click="open = !open" class="flex items-center space-x-3 focus:outline-none">
-                    <img class="h-10 w-10 rounded-full object-cover border-2 border-white/50" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=EBF4FF&background=00529B" alt="{{ Auth::user()->name }}">
+                    <img class="h-10 w-10 rounded-full object-cover border-2 border-white/50" 
+                         src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=EBF4FF&background=00529B" 
+                         alt="{{ Auth::user()->name }}">
                     <div class="hidden md:block text-left">
                         <p class="text-sm font-semibold text-white">{{ Auth::user()->name }}</p>
                         <p class="text-xs text-gray-300">{{ Auth::user()->email }}</p>

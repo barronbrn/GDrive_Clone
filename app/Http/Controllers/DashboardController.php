@@ -8,133 +8,50 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 use Carbon\Carbon;
+use ZipArchive;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request, File $folder = null)
-    {
-        $items = collect();
-        $breadcrumbs = collect();
+    // Note: The original index method was moved to FileController.
+    // This controller now handles other dashboard-related views like recent and trash.
 
-        if (Auth::check()) {
-            $user = Auth::user();
-
-            $query = File::where('created_by', $user->id);
-
-            if ($folder) {
-                // Kalau buka folder → hanya isi folder tsb
-                $query->where('parent_id', $folder->id);
-                $breadcrumbs = $this->getBreadcrumbs($folder);
-            } else {
-                if ($request->filled('search')) {
-                    // Kalau di root + search → cari semua level
-                    $search = $request->search;
-                    $query->where(function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    });
-                } else {
-                    // Kalau di root tanpa search → hanya anak root
-                    $query->whereNull('parent_id');
-                }
-            }
-
-            // Filter tambahan (modified)
-            $this->applyFilters($query, $request);
-
-            // Sorting
-            $sortDirection = $request->input('sort_direction', 'asc');
-            $items = $query
-                ->orderBy('is_folder', 'desc')
-                ->orderBy('name', $sortDirection)
-                ->get();
-        }
-
-        return view('dashboard', [
-            'items' => $items,
-            'folder' => $folder,
-            'breadcrumbs' => $breadcrumbs,
-        ]);
-    }
-
-    public function recent()
+    public function recent(Request $request)
     {
         $recentItems = collect();
         if (Auth::check()) {
-            $recentItems = File::where('created_by', Auth::id())
-                ->orderBy('created_at', 'desc')
-                ->limit(50)
-                ->get();
+            $query = File::where('created_by', Auth::id())
+                ->orderBy('last_accessed_at', 'desc')
+                ->limit(50);
+
+            if ($request->filled('search')) {
+                $query->where('name', 'like', '%' . $request->input('search') . '%');
+            }
+
+            $recentItems = $query->get();
         }
         return view('recent', ['recentItems' => $recentItems]);
     }
 
-    public function trash()
+    public function trash(Request $request)
     {
         $trashedItems = collect();
         if (Auth::check()) {
-            $trashedItems = File::where('created_by', Auth::id())
+            $query = File::where('created_by', Auth::id())
                 ->onlyTrashed()
-                ->orderBy('deleted_at', 'desc')
-                ->get();
+                ->orderBy('deleted_at', 'desc');
+
+            if ($request->filled('search')) {
+                $query->where('name', 'like', '%' . $request->input('search') . '%');
+            }
+
+            $trashedItems = $query->get();
         }
         return view('trash', ['trashedItems' => $trashedItems]);
     }
 
-    private function applyFilters($query, Request $request)
-    {
-        if ($request->filled('modified')) {
-            switch ($request->input('modified')) {
-                case 'today':
-                    $query->whereDate('updated_at', Carbon::today());
-                    break;
-                case 'week':
-                    $query->whereBetween('updated_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-                    break;
-                case 'month':
-                    $query->whereMonth('updated_at', Carbon::now()->month);
-                    break;
-            }
-        }
-    }
-
-    public function restore($id)
-    {
-        $file = File::onlyTrashed()
-            ->where('created_by', Auth::id())
-            ->findOrFail($id);
-
-        $file->restore();
-        return back()->with('success', 'Item berhasil dikembalikan.');
-    }
-
-    public function forceDelete($id)
-    {
-        $file = File::onlyTrashed()
-            ->where('created_by', Auth::id())
-            ->findOrFail($id);
-
-        if (!$file->is_folder) {
-            Storage::disk('private')->delete($file->path);
-        }
-        $file->forceDelete();
-        return back()->with('success', 'Item berhasil dihapus permanen.');
-    }
-
-    public function createFolder(Request $request)
-    {
-        $request->validate(['folder_name' => 'required|string|max:255']);
-        File::create([
-            'name' => $request->folder_name,
-            'is_folder' => true,
-            'created_by' => Auth::id(),
-            'parent_id' => $request->parent_id,
-        ]);
-        return back()->with('success', 'Folder berhasil dibuat.');
-    }
-
     public function uploadFile(Request $request)
     {
-        $request->validate(['file_upload' => 'required|file|max:20480']);
+        $request->validate(['file_upload' => 'required|file|max:1048576']);
         $uploadedFile = $request->file('file_upload');
         $path = $uploadedFile->store('files/' . Auth::id(), 'private');
         File::create([
@@ -146,14 +63,7 @@ class DashboardController extends Controller
             'created_by' => Auth::id(),
             'parent_id' => $request->parent_id,
         ]);
-        return back()->with('success', 'File berhasil diupload.');
-    }
-
-    public function delete(File $file)
-    {
-        if ($file->created_by !== Auth::id()) abort(403);
-        $file->delete();
-        return back()->with('success', 'Item berhasil dipindahkan ke Trash.');
+        return back()->with('success', 'File uploaded successfully.');
     }
 
     public function updateName(Request $request, File $file)
@@ -161,59 +71,79 @@ class DashboardController extends Controller
         if ($file->created_by !== Auth::id()) {
             abort(403);
         }
-        $request->validate([
-            'file_name' => 'required|string|max:255',
-        ]);
-        $file->update([
-            'name' => $request->file_name,
-        ]);
-        return back()->with('success', 'Nama berhasil diperbarui.');
+        $request->validate(['file_name' => 'required|string|max:255']);
+        $file->update(['name' => $request->file_name]);
+        return back()->with('success', 'Name updated successfully.');
     }
 
-    public function download(File $file)
+    public function delete(File $file)
     {
-        $this->authorizeFileAccess($file);
-        $file->touch('last_accessed_at');
-        return Storage::disk('private')->download($file->path, $file->name);
-    }
-
-    public function preview(File $file)
-    {
-        $this->authorizeFileAccess($file);
-        $file->touch('last_accessed_at');
-        $path = Storage::disk('private')->path($file->path);
-        if (in_array($file->mime_type, ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain'])) {
-            return Response::file($path);
-        }
-        return $this->download($file);
-    }
-
-    private function getBreadcrumbs($folder)
-    {
-        if (!$folder) return collect();
-        $breadcrumbs = collect();
-        $current = $folder;
-        while ($current) {
-            $breadcrumbs->prepend([
-                'name' => $current->name,
-                'route' => route('dashboard.folder', $current)
-            ]);
-            $current = File::find($current->parent_id);
-        }
-        return $breadcrumbs;
-    }
-
-    private function authorizeFolderAccess($folder)
-    {
-        if ($folder && $folder->created_by !== Auth::id()) {
-            abort(403, 'Unauthorized Access');
-        }
-    }
-
-    private function authorizeFileAccess(File $file)
-    {
-        if ($file->is_folder || $file->created_by !== Auth::id()) {
+        if ($file->created_by !== Auth::id()) {
             abort(403);
         }
+        $file->delete();
+        return back()->with('success', 'Item moved to Trash.');
+    }
+
+    public function downloadFolder(File $folder)
+    {
+        if ($folder->created_by !== Auth::id() || !$folder->is_folder) {
+            abort(403);
+        }
+
+        $zip = new ZipArchive();
+        $zipFileName = $folder->name . '.zip';
+        $zipPath = storage_path('app/temp/' . $zipFileName);
+
+        if (!Storage::exists('temp')) {
+            Storage::makeDirectory('temp');
+        }
+
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+            return back()->withErrors('Cannot create zip file.');
+        }
+
+        $zip->addEmptyDir($folder->name);
+        $this->addFilesToZip($zip, $folder, $folder->name);
+        $zip->close();
+
+        return response()->download($zipPath)->deleteFileAfterSend(true);
+    }
+
+    private function addFilesToZip(ZipArchive $zip, File $folder, $parentPath = '')
+    {
+        $items = File::where('parent_id', $folder->id)
+            ->where('created_by', Auth::id())
+            ->get();
+
+        foreach ($items as $item) {
+            $localPath = ltrim($parentPath . '/' . $item->name, '/');
+
+            if ($item->is_folder) {
+                $zip->addEmptyDir($localPath);
+                $this->addFilesToZip($zip, $item, $localPath);
+            } else {
+                if (Storage::disk('private')->exists($item->path)) {
+                    $zip->addFile(Storage::disk('private')->path($item->path), $localPath);
+                }
+            }
+        }
+    }
+
+    public function restore($id)
+    {
+        $file = File::onlyTrashed()->where('created_by', Auth::id())->findOrFail($id);
+        $file->restore();
+        return back()->with('success', 'Item restored successfully.');
+    }
+
+    public function forceDelete($id)
+    {
+        $file = File::onlyTrashed()->where('created_by', Auth::id())->findOrFail($id);
+        if (!$file->is_folder) {
+            Storage::disk('private')->delete($file->path);
+        }
+        $file->forceDelete();
+        return back()->with('success', 'Item permanently deleted.');
     }
 }

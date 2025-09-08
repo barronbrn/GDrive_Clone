@@ -15,7 +15,7 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
             colors: {
-                'bri-blue': '#00529C',
+                'bri-blue': '#00529B',
                 'bri-blue-dark': '#00417C',
             },
         },

@@ -12,7 +12,7 @@
         <div class="grid grid-cols-12 gap-4 items-center px-6 py-4 hover:bg-gray-50 border-b last:border-b-0">
             <div class="col-span-12 md:col-span-6 flex items-center space-x-3">
                 @if($item->is_folder)
-                    <a href="{{ route('dashboard.folder', $item) }}" class="flex items-center space-x-3">
+                    <a href="{{ Route::has('dashboard.folder') ? route('dashboard.folder', $item) : '#' }}" class="flex items-center space-x-3">
                         <x-file-icon :item="$item" />
                         <span class="font-medium truncate">{{ $item->name }}</span>
                     </a>
@@ -28,7 +28,7 @@
         </div>
     @empty
         <div class="p-6 text-center text-gray-500">
-            <p>Tidak ada item yang baru dibuat.</p>
+            <p>No recently created items.</p>
         </div>
     @endforelse
 </div>

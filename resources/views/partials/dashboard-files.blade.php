@@ -1,4 +1,3 @@
-<div x-init = "currentFolderId = null">
 <style>
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -12,7 +11,7 @@
             <div class="overflow-x-auto pb-4 -mx-4 px-4 no-scrollbar">
                 <div class="flex space-x-6">
                     @foreach ($recentItems as $item)
-                        <a href="{{ $item->is_folder ? route('dashboard.folder', $item) : route('file.preview', $item) }}" 
+                        <a href="{{ $item->is_folder ? route('file.folder', $item) : route('file.preview', $item) }}" 
                            target="{{ $item->is_folder ? '_self' : '_blank' }}"
                            class="flex-shrink-0 w-72 bg-white p-5 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out border border-gray-200 group">
                             <div class="flex items-center space-x-4">
@@ -42,7 +41,7 @@
                     <span x-show="sortDirection === 'asc'" class="material-symbols-outlined ml-1 text-base">arrow_upward</span>
                     <span x-show="sortDirection === 'desc'" class="material-symbols-outlined ml-1 text-base">arrow_downward</span>
                 </a>
-                <form method="GET" action="{{ route('dashboard') }}">
+                <form method="GET" action="{{ route('file.index') }}">
                     <input type="hidden" name="search" value="{{ request('search') }}">
                     <input type="hidden" name="sort_direction" value="{{ request('sort_direction', 'asc') }}">
                     <select name="modified" onchange="this.form.submit()" class="border-gray-300 rounded-lg focus:ring-2 focus:ring-bri-blue focus:border-bri-blue text-sm transition">
@@ -56,7 +55,5 @@
         </div>
 
         @include('partials.file-list', ['items' => $items])
-
     </section>
-</div>
 </div>

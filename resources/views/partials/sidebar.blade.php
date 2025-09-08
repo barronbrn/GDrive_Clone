@@ -1,4 +1,5 @@
-<aside class="w-72 bg-white flex-col p-6 border-r border-gray-200 hidden md:flex shadow-lg">
+<aside class="w-72 bg-white flex flex-col p-6 border-r border-gray-200 shadow-lg">
+    <!-- Logo / Header -->
     <div class="flex items-center space-x-4 mb-10">
         <div class="p-3 bg-bri-blue rounded-xl shadow-md">
             <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -10,6 +11,7 @@
         <span class="text-3xl font-bold text-bri-blue">DataBOX</span>
     </div>
 
+    <!-- New / Upload Dropdown -->
     <div x-data="{ open: false }" class="relative mb-8">
         @auth
             <button @click="open = !open" 
@@ -45,11 +47,12 @@
         @endauth
     </div>
 
+    <!-- Navigation -->
     <nav class="flex-1">
         <ul class="space-y-3">
             <li>
-                <a href="{{ route('dashboard') }}" 
-                   class="flex items-center space-x-4 p-3 rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard*') ? 'text-white font-bold bg-bri-blue shadow-lg' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100' }}">
+                <a href="{{ route('file.index') }}" 
+                   class="flex items-center space-x-4 p-3 rounded-xl transition-all duration-200 {{ request()->routeIs('file.index') || request()->routeIs('file.folder') ? 'text-white font-bold bg-bri-blue shadow-lg' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100' }}">
                     <span class="material-symbols-outlined">folder_managed</span>
                     <span>My File</span>
                 </a>
@@ -71,6 +74,7 @@
         </ul>
     </nav>
 
+    <!-- Footer -->
     <div class="mt-auto">
         <div class="p-4 bg-blue-50 rounded-xl text-center">
             <p class="text-sm font-semibold text-bri-blue italic">Melayani dengan setulus hati</p>
