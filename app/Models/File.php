@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 
 class File extends Model
@@ -52,7 +52,7 @@ class File extends Model
      */
     public function getFolderSize(): int
     {
-        if (!$this->is_folder) {
+        if (! $this->is_folder) {
             return (int) $this->size;
         }
 
@@ -61,8 +61,6 @@ class File extends Model
 
     /**
      * Efficiently retrieves all descendants of the current folder.
-     *
-     * @return Collection
      */
     private function getAllDescendants(): Collection
     {

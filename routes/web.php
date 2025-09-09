@@ -41,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/file/upload', [FileController::class, 'uploadFile'])->name('file.upload');
     Route::patch('/file/update/{file}', [FileController::class, 'update'])->name('file.update');
     Route::delete('/file/delete/{file}', [FileController::class, 'destroy'])->name('file.destroy');
+    Route::post('/file/duplicate/{file}', [FileController::class, 'duplicate'])->name('file.duplicate');
 
     // File and folder downloads/previews
     Route::get('/file/download/{file}', [FileController::class, 'download'])->name('file.download');

@@ -89,7 +89,7 @@ class FileController extends Controller
             'file_upload' => 'required|file|max:512000', // 500MB limit per file
             'parent_id' => 'nullable|exists:files,id,created_by,'.Auth::id(),
         ], [
-            'file_upload.max' => 'The file must not be greater than 500MB.'
+            'file_upload.max' => 'The file must not be greater than 500MB.',
         ]);
 
         if ($request->hasFile('file_upload')) {
@@ -159,6 +159,19 @@ class FileController extends Controller
         return response()->download($tempZipPath)->deleteFileAfterSend(true);
     }
 
+    public function duplicate(File $file)
+    {
+        $this->authorize('duplicate', $file);
+
+        if ($file->is_folder) {
+            $this->duplicateFolder($file, $file->parent_id);
+        } else {
+            $this->duplicateFile($file, $file->parent_id);
+        }
+
+        return back()->with('success', 'Item berhasil diduplikasi.');
+    }
+
     public function preview(File $file)
     {
         $this->authorize('view', $file);
@@ -189,6 +202,46 @@ class FileController extends Controller
         $file->forceDelete();
 
         return back()->with('success', 'Item berhasil dihapus permanen.');
+    }
+
+    private function duplicateFile(File $originalFile, $newParentId)
+    {
+        $newPath = null;
+        if ($originalFile->path) {
+            $extension = pathinfo($originalFile->path, PATHINFO_EXTENSION);
+            $newFileName = pathinfo($originalFile->name, PATHINFO_FILENAME).' (Copy)'.($extension ? '.'.$extension : '');
+            $newPath = 'files/'.Auth::id().'/'.uniqid().'.'.$extension;
+            Storage::disk('private')->copy($originalFile->path, $newPath);
+        }
+
+        File::create([
+            'name' => $originalFile->name.' (Copy)',
+            'path' => $newPath,
+            'mime_type' => $originalFile->mime_type,
+            'size' => $originalFile->size,
+            'is_folder' => false,
+            'created_by' => Auth::id(),
+            'parent_id' => $newParentId,
+        ]);
+    }
+
+    private function duplicateFolder(File $originalFolder, $newParentId)
+    {
+        $newFolder = File::create([
+            'name' => $originalFolder->name.' (Copy)',
+            'is_folder' => true,
+            'created_by' => Auth::id(),
+            'parent_id' => $newParentId,
+        ]);
+
+        $children = File::where('parent_id', $originalFolder->id)->get();
+        foreach ($children as $child) {
+            if ($child->is_folder) {
+                $this->duplicateFolder($child, $newFolder->id);
+            } else {
+                $this->duplicateFile($child, $newFolder->id);
+            }
+        }
     }
 
     // Private Helper Methods
@@ -240,7 +293,7 @@ class FileController extends Controller
 
     private function getBreadcrumbs(?File $folder)
     {
-        if (!$folder) {
+        if (! $folder) {
             return collect();
         }
 

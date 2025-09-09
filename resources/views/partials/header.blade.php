@@ -1,6 +1,6 @@
 <header class="flex justify-between items-center text-white py-4 px-6 rounded-2xl shadow-xl" 
         style="
-            background: linear-gradient(to bottom right, rgba(0, 82, 155, 0.95), rgba(0, 58, 112, 0.95)), url('{{ asset('images/bg-mega-mendung.jpg') }}');
+            background: linear-gradient(rgba(0, 82, 155, 0.2), rgba(0, 82, 155, 0.2)), url('{{ asset('images/bg-mega-mendung.jpg') }}');
             background-repeat: no-repeat, no-repeat;
             background-size: cover, cover;
             background-position: center, center;
