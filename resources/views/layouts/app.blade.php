@@ -52,17 +52,17 @@
         <!-- Sidebar Wrapper: Controls sidebar visibility and animation -->
         <div x-show="isSidebarOpen" 
              class="flex-shrink-0 w-72 h-full"
-             x-transition:enter="transition ease-in-out duration-300"
+             x-transition:enter="transition ease-in-out duration-500"
              x-transition:enter-start="opacity-0 transform -translate-x-full"
              x-transition:enter-end="opacity-100 transform translate-x-0"
-             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave="transition ease-in duration-500"
              x-transition:leave-start="opacity-100 transform translate-x-0"
              x-transition:leave-end="opacity-0 transform -translate-x-full">
             @include('partials.sidebar')
         </div>
 
         <!-- Main Content Wrapper -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+           <div class="flex-1 flex flex-col overflow-hidden transition-all duration-500 ease-in-out">
             <!-- Sticky Header -->
             <header class="sticky top-0 z-30 bg-gray-50 px-6 md:px-10 pt-6">
                 @include('partials.header')
