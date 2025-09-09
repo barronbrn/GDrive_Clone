@@ -1,3 +1,4 @@
+
 <header class="flex justify-between items-center text-white py-4 px-6 rounded-2xl shadow-md bg-blue-800" 
         style="
             background-image: url('{{ asset('images/bg-mega-mendung.jpg') }}');
@@ -5,9 +6,16 @@
             background-size: cover;
             background-position: center;
         ">
-    <!-- Form Pencarian -->
-
-    <form method="GET" action="{{ url()->current() }}" class="flex-grow max-w-[250px]">
+    <div class="absolute inset-0 bg-bri-blue opacity-80"></div>
+    <div class="relative z-10 flex justify-between items-center w-full">
+        <!-- Form Pencarian -->
+        <form method="GET" action="{{ url()->current() }}" class="flex-grow max-w-md">
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-300">search</span>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari di DataBOX..." 
+                       class="w-full bg-white/20 text-white placeholder-gray-300 border-none rounded-full py-2 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 transition">
+            </div>
+        </form>
 
         <div class="relative">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -20,39 +28,41 @@
         </div>
     </form>
 
-    @auth
-        <!-- Dropdown Profile -->
-        <div x-data="{ open: false }" class="relative ml-4">
-            <button 
-                @click="open = !open" 
-                class="flex items-center space-x-2 text-sm font-medium focus:outline-none transition duration-150 ease-in-out rounded-full p-1 hover:bg-white/10">
-                <img class="h-10 w-10 rounded-full object-cover border-2 border-white/50" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=FFFFFF&background=00529B" alt="{{ Auth::user()->name }}">
-                <div class="hidden sm:block text-sm font-medium">{{ Auth::user()->name }}</div>
-                <div class="ml-1 hidden sm:block">
-                    <svg class="fill-current h-4 w-4 text-white/80" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-            </button>
-
-            <div x-show="open" @click.outside="open = false" x-cloak class="absolute z-50 mt-2 w-48 rounded-xl shadow-lg origin-top-right right-0 bg-white overflow-hidden">
-                <div class="py-1">
-                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" 
-                           class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log Out</a>
-                    </form>
+                <div x-show="open" @click.outside="open = false" x-cloak 
+                     class="absolute z-50 mt-2 w-56 rounded-xl shadow-lg origin-top-right right-0 bg-white ring-1 ring-black ring-opacity-5 overflow-hidden"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="transform opacity-100 scale-100"
+                     x-transition:leave-end="transform opacity-0 scale-95">
+                    <div class="py-2">
+                        <div class="px-4 py-2 border-b border-gray-200">
+                            <p class="text-sm font-semibold text-gray-800">{{ Auth::user()->name }}</p>
+                            <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
+                        </div>
+                        <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                            <span class="material-symbols-outlined mr-3">person</span>
+                            <span>Profil</span>
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-red-500 hover:bg-gray-100 transition-colors">
+                               <span class="material-symbols-outlined mr-3">logout</span>
+                               <span>Log Out</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    @else
-        <!-- Tombol Login/Register -->
-        <div class="flex items-center space-x-4 ml-4">
-            <a href="{{ route('login') }}" class="text-sm font-semibold text-white hover:underline">Log in</a>
-            @if (Route::has('register'))
-                <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 bg-white text-bri-blue border border-transparent rounded-full font-semibold text-xs uppercase tracking-widest hover:bg-gray-100 transition">Register</a>
-            @endif
-        </div>
-    @endauth
+        @else
+            <!-- Tombol Login/Register -->
+            <div class="flex items-center space-x-4 ml-4">
+                <a href="{{ route('login') }}" class="text-sm font-semibold text-white hover:text-gray-200 transition-colors">Log in</a>
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 bg-white text-bri-blue border border-transparent rounded-full font-semibold text-xs uppercase tracking-widest hover:bg-gray-200 transition-colors">Register</a>
+                @endif
+            </div>
+        @endauth
+    </div>
 </header>

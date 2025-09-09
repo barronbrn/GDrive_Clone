@@ -16,7 +16,8 @@ export default {
             },
             colors: {
                 'bri-blue': '#00529B',
-            }
+                'bri-blue-dark': '#00417C',
+            },
         },
     },
 
