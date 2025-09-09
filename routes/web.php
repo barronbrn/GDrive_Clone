@@ -40,7 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Dashboard view routes
     // Displays recently accessed items
-    Route::get('/recent', [DashboardController::class, 'recent'])->name('recent');
+    Route::get('/recent/{folder?}', [DashboardController::class, 'recent'])->name('recent');
     // Displays trashed items
     Route::get('/trash', [DashboardController::class, 'trash'])->name('trash');
 

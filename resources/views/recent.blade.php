@@ -3,5 +3,5 @@
 
     @include('partials.breadcrumbs')
 
-    @include('partials.recent-list', ['items' => $recentItems])
+    @include('partials.recent-list', ['items' => $items, 'folder' => $folder ?? null])
 </x-app-layout>

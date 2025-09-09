@@ -6,6 +6,8 @@ use App\Models\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Response;
 use ZipArchive;
 
 class DashboardController extends Controller
@@ -14,24 +16,34 @@ class DashboardController extends Controller
     // Pengontrol ini sekarang menangani tampilan terkait dasbor lainnya seperti terbaru dan sampah.
 
     // Menampilkan item yang baru diakses
-    public function recent(Request $request)
+    public function recent(Request $request, ?File $folder = null)
     {
-        $recentItems = collect();
-        if (Auth::check()) {
-            $query = File::where('created_by', Auth::id())
-                ->orderBy('last_accessed_at', 'desc')
-                ->limit(50);
+        $query = File::where('created_by', Auth::id());
+        $breadcrumbs = [['name' => 'Recent', 'route' => route('recent')]];
 
-            if ($request->filled('search')) {
-                $query->where('name', 'like', '%'.$request->input('search').'%');
+        if ($folder) {
+            $this->authorize('view', $folder); // Ensure user can view this folder
+            $folder->touch('last_accessed_at'); // Update last accessed time
+
+            $query->where('parent_id', $folder->id);
+            $items = $query->get();
+
+            // Generate breadcrumbs for the folder path
+            $current = $folder;
+            while ($current) {
+                array_unshift($breadcrumbs, ['name' => $current->name, 'route' => route('recent', $current)]);
+                $current = $current->parent;
             }
-
-            $recentItems = $query->get();
+        } else {
+            $query->orderBy('last_accessed_at', 'desc')->limit(50);
+            $items = $query->get();
         }
 
-        $breadcrumbs = [['name' => 'Recent']];
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%'.$request->input('search').'%');
+        }
 
-        return view('recent', compact('recentItems', 'breadcrumbs'));
+        return view('recent', compact('items', 'breadcrumbs', 'folder'));
     }
 
     // Menampilkan item yang dibuang
