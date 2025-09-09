@@ -13,6 +13,7 @@ class PasswordResetLinkController extends Controller
     /**
      * Display the password reset link request view.
      */
+    // Menampilkan tampilan permintaan tautan atur ulang kata sandi
     public function create(): View
     {
         return view('auth.forgot-password');
@@ -23,15 +24,16 @@ class PasswordResetLinkController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+    // Menangani permintaan tautan reset kata sandi yang masuk
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'email' => ['required', 'email'],
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
+        // Kami akan mengirim tautan reset kata sandi ke pengguna ini. Setelah kami mencoba
+        // untuk mengirim tautan, kami akan memeriksa responsnya lalu melihat pesan yang
+        // perlu kami tunjukkan kepada pengguna. Akhirnya, kami akan mengirimkan respons yang tepat.
         $status = Password::sendResetLink(
             $request->only('email')
         );

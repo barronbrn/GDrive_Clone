@@ -39,16 +39,17 @@
     </style>
 </head>
 <body class="text-gray-800 antialiased" 
-      x-data="{
-          showCreateFolderModal: false,
-          showUploadFileModal: false,
-          showEditModal: false,
-          editItem: {},
-          currentFolderId: null,
-          isSidebarOpen: localStorage.getItem('isSidebarOpen') === 'false' ? false : true
-      }">
-
-    <div class="flex h-screen bg-gray-50">
+                  x-data="{
+                      isSidebarOpen: localStorage.getItem('isSidebarOpen') === 'false' ? false : true,
+                      showCreateFolderModal: false, 
+                      showUploadFileModal: false,
+                      showEditModal: false,
+                      editItem: {},
+                      currentFolderId: null
+                  }">
+                <!-- Controls the visibility of the sidebar and its animation -->   
+                 <div class="flex h-screen bg-gray-50">
+        <!-- Sidebar Wrapper: Controls sidebar visibility and animation -->
         <div x-show="isSidebarOpen" 
              class="flex-shrink-0 w-72 h-full"
              x-transition:enter="transition ease-in-out duration-300"
@@ -60,35 +61,43 @@
             @include('partials.sidebar')
         </div>
 
-        <main class="flex-1 p-6 md:p-10 overflow-y-auto transition-all duration-400 ease-in-out">
-            @include('partials.header')
-            <div class="mt-8">
-                @if (session('success'))
-                    <div class="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 mb-6 rounded-lg shadow-md" role="alert">
-                        <div class="flex">
-                            <div class="py-1"><span class="material-symbols-outlined mr-3">check_circle</span></div>
-                            <div>
-                                <p class="font-bold">Success</p>
-                                <p>{{ session('success') }}</p>
+        <!-- Main Content Wrapper -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Sticky Header -->
+            <header class="sticky top-0 z-30 bg-gray-50 px-6 md:px-10 pt-6">
+                @include('partials.header')
+            </header>
+
+            <!-- Scrollable Content -->
+            <main class="flex-1 overflow-y-auto px-6 md:px-10 pb-6">
+                <div class="mt-8">
+                    @if (session('success'))
+                        <div class="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 mb-6 rounded-lg shadow-md" role="alert">
+                            <div class="flex">
+                                <div class="py-1"><span class="material-symbols-outlined mr-3">check_circle</span></div>
+                                <div>
+                                    <p class="font-bold">Success</p>
+                                    <p>{{ session('success') }}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endif
-                 @if ($errors->any())
-                    <div class="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 mb-6 rounded-lg shadow-md" role="alert">
-                        <div class="flex">
-                            <div class="py-1"><span class="material-symbols-outlined mr-3">error</span></div>
-                            <div>
-                                <p class="font-bold">Error</p>
-                                <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+                    @endif
+                     @if ($errors->any())
+                        <div class="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 mb-6 rounded-lg shadow-md" role="alert">
+                            <div class="flex">
+                                <div class="py-1"><span class="material-symbols-outlined mr-3">error</span></div>
+                                <div>
+                                    <p class="font-bold">Error</p>
+                                    <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endif
-                
-                {{ $slot }}
-            </div>
-        </main>
+                    @endif
+                    
+                    {{ $slot }}
+                </div>
+            </main>
+        </div>
     </div>
 
     <!-- Create Folder Modal -->
@@ -211,7 +220,7 @@
         </div>
     </div>
 
-    <!-- Edit Modal -->
+    <!-- Modal Edit -->
     <div x-show="showEditModal" 
          x-cloak 
          @keydown.escape.window="showEditModal = false" 

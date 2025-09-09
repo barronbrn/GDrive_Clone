@@ -14,16 +14,21 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
+    // Menampilkan formulir profil pengguna
     public function edit(Request $request): View
     {
+        $breadcrumbs = [['name' => 'Profile']];
+
         return view('profile.edit', [
             'user' => $request->user(),
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 
     /**
-     * Update the user's profile information.
+     * Perbarui informasi profil pengguna.
      */
+    // Memperbarui informasi profil pengguna
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $request->user()->fill($request->validated());
@@ -40,6 +45,7 @@ class ProfileController extends Controller
     /**
      * Delete the user's account.
      */
+    // Menghapus akun pengguna
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [

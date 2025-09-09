@@ -48,7 +48,7 @@
         <div class="text-center mt-4 text-sm text-gray-400">
             Already have an account? 
             <a href="{{ route('login') }}" class="underline hover:text-white font-medium">
-                Login
+Masuk
             </a>
         </div>
     </form>

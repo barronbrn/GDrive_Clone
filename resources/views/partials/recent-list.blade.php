@@ -12,7 +12,7 @@
         <div class="grid grid-cols-12 gap-4 items-center px-6 py-4 hover:bg-gray-50 border-b last:border-b-0">
             <div class="col-span-12 md:col-span-6 flex items-center space-x-3">
                 @if($item->is_folder)
-                    <a href="{{ Route::has('dashboard.folder') ? route('dashboard.folder', $item) : '#' }}" class="flex items-center space-x-3">
+                    <a href="{{ Route::has('file.folder') ? route('file.folder', $item) : '#' }}" class="flex items-center space-x-3">
                         <x-file-icon :item="$item" />
                         <span class="font-medium truncate">{{ $item->name }}</span>
                     </a>

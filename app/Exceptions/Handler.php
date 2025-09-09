@@ -19,8 +19,9 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Register the exception handling callbacks for the application.
+     * Daftarkan callback penanganan pengecualian untuk aplikasi.
      */
+    // Mendaftarkan callback penanganan pengecualian untuk aplikasi
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {

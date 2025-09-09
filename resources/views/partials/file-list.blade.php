@@ -18,7 +18,7 @@
             <div class="group relative border-b border-gray-200 last:border-b-0">
                 <a href="{{ $item->is_folder ? route('file.folder', $item) : route('file.preview', $item) }}" 
                    target="{{ $item->is_folder ? '_self' : '_blank' }}"
-                   class="grid grid-cols-12 gap-4 items-center px-6 py-3 hover:bg-gray-50 transition-colors duration-200">
+                   class="grid grid-cols-12 gap-4 items-center px-6 py-3 hover:bg-gray-200">
                     
                     <div class="col-span-5 flex items-center space-x-4">
                         <x-file-icon :item="$item" class="w-8 h-8" />
@@ -29,7 +29,7 @@
                     <div class="col-span-2 text-sm text-gray-500 hidden md:block">{{ $item->is_folder ? '—' : \Illuminate\Support\Number::fileSize($item->size) }}</div>
                 </a>
                 
-                <!-- Menu aksi (Download, Rename, Delete) -->
+                <!-- Menu aksi (Unduh, Ganti Nama, Hapus) -->
                 <div class="absolute top-1/2 right-4 -translate-y-1/2 flex items-center justify-end space-x-2">
                     <x-file-actions-dropdown :item="$item" />
                 </div>
@@ -44,7 +44,7 @@
 </div>
 
 <style>
-    /* Ensure dropdown menu items are solid and clickable on hover */
+    /* Pastikan item menu dropdown solid dan dapat diklik saat di-hover */
     .dropdown-menu-item:hover {
         background-color: #f3f4f6 !important; /* Tailwind's gray-100 */
         opacity: 1 !important;
@@ -54,7 +54,7 @@
 </style>
 
 <style>
-    /* Ensure dropdown menu items are solid and clickable on hover */
+    /* Pastikan item menu dropdown solid dan dapat diklik saat di-hover */
     .dropdown-menu-item:hover {
         background-color: #f3f4f6 !important; /* Tailwind's gray-100 */
         opacity: 1 !important;

@@ -18,8 +18,9 @@ class AuthServiceProvider extends ServiceProvider
     ];
 
     /**
-     * Register any authentication / authorization services.
+     * Daftarkan semua layanan otentikasi / otorisasi.
      */
+    // Mendaftarkan layanan otentikasi / otorisasi apa pun
     public function boot(): void
     {
         //

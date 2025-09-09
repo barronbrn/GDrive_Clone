@@ -10,6 +10,7 @@ class AppLayout extends Component
     /**
      * Get the view / contents that represents the component.
      */
+    // Mendapatkan tampilan / konten yang mewakili komponen
     public function render(): View
     {
         return view('layouts.app');

@@ -45,8 +45,8 @@
         <div class="text-center mt-4 text-sm text-gray-400">
             Don't Have an Account? 
             <a href="{{ route('register') }}" class="underline hover:text-white font-medium">
-                Register
+                Daftar
             </a>
         </div>
     </form>
-</x-guest-layout>
+</x-guest-layout>uest-layout>

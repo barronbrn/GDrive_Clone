@@ -7,8 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Jalankan migrasi.
      */
+    // Runs the migrations (creates the password_reset_tokens table)
     public function up(): void
     {
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -21,6 +22,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
+    // Reverses the migrations (drops the password_reset_tokens table)
     public function down(): void
     {
         Schema::dropIfExists('password_reset_tokens');

@@ -20,8 +20,9 @@ class RouteServiceProvider extends ServiceProvider
     public const HOME = '/';
 
     /**
-     * Define your route model bindings, pattern filters, and other route configuration.
+     * Tentukan binding model rute, filter pola, dan konfigurasi rute lainnya.
      */
+    // Mendefinisikan binding model rute, filter pola, dan konfigurasi rute lainnya
     public function boot(): void
     {
         RateLimiter::for('api', function (Request $request) {

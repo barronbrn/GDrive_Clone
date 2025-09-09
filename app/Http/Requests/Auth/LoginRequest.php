@@ -14,6 +14,7 @@ class LoginRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
+    // Menentukan apakah pengguna diizinkan untuk membuat permintaan ini
     public function authorize(): bool
     {
         return true;
@@ -24,6 +25,7 @@ class LoginRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
+    // Mendapatkan aturan validasi yang berlaku untuk permintaan
     public function rules(): array
     {
         return [
@@ -37,6 +39,7 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+    // Mencoba mengotentikasi kredensial permintaan
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
@@ -57,6 +60,7 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+    // Memastikan permintaan login tidak dibatasi laju
     public function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
@@ -76,8 +80,9 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the rate limiting throttle key for the request.
+     * Dapatkan kunci throttle pembatasan laju untuk permintaan tersebut.
      */
+    // Mendapatkan kunci pembatas laju untuk permintaan
     public function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());

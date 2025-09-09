@@ -9,6 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    // Menjalankan migrasi (membuat tabel files)
     public function up(): void
     {
         Schema::create('files', function (Blueprint $table) {
@@ -28,6 +29,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
+    // Reverses the migrations (drops the files table)
     public function down(): void
     {
         Schema::dropIfExists('files');

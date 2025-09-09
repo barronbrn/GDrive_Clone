@@ -10,6 +10,7 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
+    // Mendefinisikan jadwal perintah aplikasi
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
@@ -19,6 +20,7 @@ class Kernel extends ConsoleKernel
     /**
      * Register the commands for the application.
      */
+    // Mendaftarkan perintah konsol aplikasi
     protected function commands(): void
     {
         $this->load(__DIR__.'/Commands');

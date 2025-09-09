@@ -1,4 +1,4 @@
-<header class="flex justify-between items-center text-white py-4 px-6 rounded-2xl shadow-xl" 
+<header class="flex justify-between items-center text-white py-2 rounded-2xl shadow-xl" 
         style="
             background: linear-gradient(to bottom right, rgba(0, 82, 155, 0.95), rgba(0, 58, 112, 0.95)), url('{{ asset('images/bg-mega-mendung.jpg') }}');
             background-repeat: no-repeat, no-repeat;
@@ -7,9 +7,9 @@
             background-blend-mode: multiply, normal;
         ">
     <div class="relative z-10 flex items-center justify-between w-full">
-        <!-- Left Section: Sidebar Toggle -->
+        <!-- Left Section: Sidebar Toggle Button -->
         <button @click="isSidebarOpen = !isSidebarOpen; localStorage.setItem('isSidebarOpen', isSidebarOpen)"
-                class="p-2 rounded-full text-white hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 transition">
+                class="p-2 ml-4 rounded-full text-white hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 transition">
             <span class="material-symbols-outlined" 
                   x-text="isSidebarOpen ? 'menu_open' : 'menu'"
                   x-transition:enter="transition ease-out duration-150"
@@ -21,7 +21,7 @@
         </button>
 
         <!-- Center Section: Search Bar -->
-        <div class="flex-grow flex justify-center">
+        <div class="flex-grow flex justify-center ml-8">
             <form method="GET" action="{{ url()->current() }}" class="max-w-md w-full">
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -35,7 +35,7 @@
             </form>
         </div>
 
-        <!-- Right Section: Auth/Guest Dropdown -->
+        <!-- Bagian Kanan: Otentikasi Pengguna / Dropdown Tamu -->
         @auth
             <!-- Dropdown Profile -->
             <div x-data="{ open: false }" class="relative ml-4">

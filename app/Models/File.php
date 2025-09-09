@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 
 class File extends Model
@@ -29,16 +29,19 @@ class File extends Model
         'last_accessed_at' => 'datetime',
     ];
 
+    // Mendefinisikan relasi induk untuk file atau folder
     public function parent(): BelongsTo
     {
         return $this->belongsTo(File::class, 'parent_id');
     }
 
+    // Mendefinisikan hubungan anak untuk sebuah folder
     public function children(): HasMany
     {
         return $this->hasMany(File::class, 'parent_id');
     }
 
+    // Defines the owner relationship for a file or folder
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -50,9 +53,10 @@ class File extends Model
      *
      * @return int The total size in bytes.
      */
+    // Menghitung total ukuran folder
     public function getFolderSize(): int
     {
-        if (!$this->is_folder) {
+        if (! $this->is_folder) {
             return (int) $this->size;
         }
 
@@ -61,9 +65,8 @@ class File extends Model
 
     /**
      * Efficiently retrieves all descendants of the current folder.
-     *
-     * @return Collection
      */
+    // Mengambil semua turunan dari folder saat ini (pembantu pribadi)
     private function getAllDescendants(): Collection
     {
         $descendants = collect();

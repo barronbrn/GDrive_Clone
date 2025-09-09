@@ -2,12 +2,14 @@
 
 use App\Providers\RouteServiceProvider;
 
+// Test: registration screen can be rendered
 test('registration screen can be rendered', function () {
     $response = $this->get('/register');
 
     $response->assertStatus(200);
 });
 
+// Tes: pengguna baru dapat mendaftar
 test('new users can register', function () {
     $response = $this->post('/register', [
         'name' => 'Test User',

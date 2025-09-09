@@ -6,6 +6,7 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 
+// Test: email verification screen can be rendered
 test('email verification screen can be rendered', function () {
     $user = User::factory()->create([
         'email_verified_at' => null,
@@ -16,6 +17,7 @@ test('email verification screen can be rendered', function () {
     $response->assertStatus(200);
 });
 
+// Test: email can be verified
 test('email can be verified', function () {
     $user = User::factory()->create([
         'email_verified_at' => null,
@@ -36,6 +38,7 @@ test('email can be verified', function () {
     $response->assertRedirect(RouteServiceProvider::HOME.'?verified=1');
 });
 
+// Tes: email tidak diverifikasi dengan hash yang tidak valid
 test('email is not verified with invalid hash', function () {
     $user = User::factory()->create([
         'email_verified_at' => null,

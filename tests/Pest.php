@@ -18,16 +18,17 @@ uses(TestCase::class, RefreshDatabase::class)->in('Feature');
 
 /*
 |--------------------------------------------------------------------------
-| Expectations
+| Harapan
 |--------------------------------------------------------------------------
 |
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
+| Saat menulis pengujian, Anda sering kali perlu memeriksa apakah nilai memenuhi kondisi tertentu.
+| Fungsi "expect()" memberi Anda akses ke satu set metode "harapan" yang dapat Anda gunakan
+| untuk menyatakan berbagai hal. Tentu saja, Anda dapat memperluas API Harapan kapan saja.
 |
 */
 
 expect()->extend('toBeOne', function () {
+    // Custom expectation: asserts that the value is 1
     return $this->toBe(1);
 });
 
@@ -44,5 +45,6 @@ expect()->extend('toBeOne', function () {
 
 function something()
 {
+    // Example helper function (placeholder)
     // ..
 }

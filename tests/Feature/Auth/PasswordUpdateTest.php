@@ -3,6 +3,7 @@
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
+// Tes: kata sandi dapat diperbarui
 test('password can be updated', function () {
     $user = User::factory()->create();
 
@@ -22,6 +23,7 @@ test('password can be updated', function () {
     $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
 });
 
+// Test: correct password must be provided to update password
 test('correct password must be provided to update password', function () {
     $user = User::factory()->create();
 

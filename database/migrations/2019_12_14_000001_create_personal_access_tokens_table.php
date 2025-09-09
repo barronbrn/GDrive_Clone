@@ -9,6 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    // Runs the migrations (creates the personal_access_tokens table)
     public function up(): void
     {
         Schema::create('personal_access_tokens', function (Blueprint $table) {
@@ -26,6 +27,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
+    // Membalikkan migrasi (menghapus tabel personal_access_tokens)
     public function down(): void
     {
         Schema::dropIfExists('personal_access_tokens');

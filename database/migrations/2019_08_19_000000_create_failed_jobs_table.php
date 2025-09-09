@@ -9,6 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    // Runs the migrations (creates the failed_jobs table)
     public function up(): void
     {
         Schema::create('failed_jobs', function (Blueprint $table) {
@@ -23,8 +24,9 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Balikkan migrasi.
      */
+    // Reverses the migrations (drops the failed_jobs table)
     public function down(): void
     {
         Schema::dropIfExists('failed_jobs');

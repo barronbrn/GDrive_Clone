@@ -9,6 +9,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
+    // Mendaftarkan semua layanan aplikasi
     public function register(): void
     {
         //
@@ -17,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
+    // Mem-boot layanan aplikasi apa pun
     public function boot(): void
     {
         //

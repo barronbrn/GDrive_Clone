@@ -12,6 +12,7 @@ class PruneTrash extends Command
 
     protected $description = 'Permanently delete files from trash that are older than 30 days.';
 
+    // Menjalankan perintah konsol untuk memangkas file sampah lama
     public function handle()
     {
         $this->info('Starting to prune old trashed files...');

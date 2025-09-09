@@ -12,6 +12,7 @@ use ZipArchive;
 
 class FileController extends Controller
 {
+    // Menangani tampilan file dan folder di dasbor
     public function index(Request $request, ?File $folder = null)
     {
         if ($folder) {
@@ -36,7 +37,7 @@ class FileController extends Controller
             ->get();
 
         $recentItems = collect();
-        if (! $folder && !$request->filled('search')) {
+        if (! $folder && ! $request->filled('search')) {
             $recentItems = File::where('created_by', Auth::id())
                 ->whereNotNull('last_accessed_at')
                 ->orderBy('last_accessed_at', 'desc')
@@ -52,6 +53,7 @@ class FileController extends Controller
         ]);
     }
 
+    // Menangani pembuatan folder baru
     public function createFolder(Request $request)
     {
         $request->validate([
@@ -69,13 +71,14 @@ class FileController extends Controller
         return response()->json(['success' => 'Folder berhasil dibuat.']);
     }
 
+    // Menangani unggahan file baru
     public function uploadFile(Request $request)
     {
         $request->validate([
             'file_upload' => 'required|file|max:512000', // 500MB limit per file
             'parent_id' => 'nullable|exists:files,id,created_by,'.Auth::id(),
         ], [
-            'file_upload.max' => 'The file must not be greater than 500MB.'
+            'file_upload.max' => 'The file must not be greater than 500MB.',
         ]);
 
         if ($request->hasFile('file_upload')) {
@@ -95,6 +98,7 @@ class FileController extends Controller
         return response()->json(['success' => 'File berhasil diupload.']);
     }
 
+    // Menangani pembaruan properti file/folder (misalnya, penggantian nama)
     public function update(Request $request, File $file)
     {
         $this->authorize('update', $file);
@@ -110,6 +114,7 @@ class FileController extends Controller
         return back()->with('success', 'Nama berhasil diperbarui.');
     }
 
+    // Menangani penghapusan sementara file atau folder (memindahkan ke sampah)
     public function destroy(File $file)
     {
         $this->authorize('delete', $file);
@@ -118,6 +123,7 @@ class FileController extends Controller
         return back()->with('success', 'Item berhasil dipindahkan ke Trash.');
     }
 
+    // Menangani pengunduhan file
     public function download(File $file)
     {
         $this->authorize('download', $file);
@@ -126,6 +132,7 @@ class FileController extends Controller
         return Storage::disk('private')->download($file->path, $file->name);
     }
 
+    // Menangani pengunduhan folder sebagai file zip
     public function downloadFolder(File $folder)
     {
         $this->authorize('download', $folder);
@@ -144,6 +151,7 @@ class FileController extends Controller
         return response()->download($tempZipPath)->deleteFileAfterSend(true);
     }
 
+    // Menangani pratinjau file
     public function preview(File $file)
     {
         $this->authorize('view', $file);
@@ -157,6 +165,7 @@ class FileController extends Controller
         return $this->download($file);
     }
 
+    // Menangani pemulihan file atau folder yang dihapus sementara dari sampah
     public function restore($id)
     {
         $file = File::onlyTrashed()->where('created_by', Auth::id())->findOrFail($id);
@@ -166,6 +175,7 @@ class FileController extends Controller
         return back()->with('success', 'Item berhasil dikembalikan.');
     }
 
+    // Menangani penghapusan permanen file atau folder dari sampah
     public function forceDelete($id)
     {
         $file = File::onlyTrashed()->where('created_by', Auth::id())->findOrFail($id);
@@ -176,8 +186,9 @@ class FileController extends Controller
         return back()->with('success', 'Item berhasil dihapus permanen.');
     }
 
-    // Private Helper Methods
+    // Metode Pembantu Pribadi
 
+    // Secara rekursif menghapus isi folder (pembantu pribadi)
     private function deleteFolderContents(File $folder)
     {
         if (! $folder->is_folder) {
@@ -188,11 +199,12 @@ class FileController extends Controller
 
         $children = File::where('parent_id', $folder->id)->withTrashed()->get();
         foreach ($children as $child) {
-            $this->deleteFolderContents($child); // Recursive call
+            $this->deleteFolderContents($child); // Panggilan rekursif
             $child->forceDelete();
         }
     }
 
+    // Secara rekursif mengembalikan folder dan turunannya (pembantu pribadi)
     private function restoreWithChildren(File $file)
     {
         if ($file->is_folder) {
@@ -204,6 +216,7 @@ class FileController extends Controller
         $file->restore();
     }
 
+    // Secara rekursif menambahkan file dalam folder ke ZipArchive (pembantu pribadi)
     private function addFilesToZip(ZipArchive $zip, File $folder, $parentPath = '')
     {
         $items = File::where('parent_id', $folder->id)
@@ -223,9 +236,10 @@ class FileController extends Controller
         }
     }
 
+    // Menghasilkan breadcrumb untuk navigasi folder (pembantu pribadi)
     private function getBreadcrumbs(?File $folder)
     {
-        if (!$folder) {
+        if (! $folder) {
             return collect();
         }
 
@@ -233,7 +247,7 @@ class FileController extends Controller
         $current = $folder;
         while ($current) {
             $breadcrumbs->prepend($current);
-            $current = $current->parent; // Uses the new relationship
+            $current = $current->parent; // Menggunakan relasi baru
         }
 
         return $breadcrumbs->map(function (File $file) {
@@ -244,6 +258,7 @@ class FileController extends Controller
         });
     }
 
+    // Menerapkan filter ke kueri file berdasarkan parameter permintaan (pembantu pribadi)
     private function applyFilters($query, Request $request)
     {
         if ($request->filled('modified')) {

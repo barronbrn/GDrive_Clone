@@ -13,6 +13,7 @@ class ProfileUpdateRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
+    // Mendapatkan aturan validasi yang berlaku untuk permintaan
     public function rules(): array
     {
         return [

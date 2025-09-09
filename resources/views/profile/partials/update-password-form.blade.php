@@ -5,7 +5,7 @@
             {{ __('Update Password') }}
         </h2>
 
-        {{-- Description --}}
+        {{-- Deskripsi --}}
         <p class="mt-1 text-sm text-gray-900">
             {{ __('Ensure your account is using a long, random password to stay secure.') }}
         </p>

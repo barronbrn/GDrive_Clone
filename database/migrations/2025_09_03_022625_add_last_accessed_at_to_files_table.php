@@ -9,6 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    // Runs the migrations (adds last_accessed_at column to files table)
     public function up(): void
     {
         Schema::table('files', function (Blueprint $table) {
@@ -19,6 +20,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
+    // Membalikkan migrasi (menghapus kolom last_accessed_at dari tabel files)
     public function down(): void
     {
         Schema::table('files', function (Blueprint $table) {

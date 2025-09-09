@@ -1,12 +1,5 @@
 <div x-init="currentFolderId = {{ $folder->id }}">
-    <!-- Breadcrumb Navigation -->
-    <nav class="flex items-center text-sm font-medium text-gray-500 mb-6">
-        <a href="{{ Route::has('dashboard') ? route('dashboard') : '/' }}" class="hover:text-bri-blue transition-colors">My Files</a>
-        @foreach ($breadcrumbs as $breadcrumb)
-            <span class="mx-2 text-gray-400">/</span>
-            <a href="{{ $breadcrumb['route'] }}" class="hover:text-bri-blue transition-colors">{{ $breadcrumb['name'] }}</a>
-        @endforeach
-    </nav>
+    @include('partials.breadcrumbs')
 
     <!-- Header & Actions -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
@@ -22,7 +15,7 @@
             </button>
             <div x-data="{ sortDirection: '{{ request('sort_direction', 'asc') }}' }" class="flex items-center space-x-3 text-sm">
                 <a :href="'{{ url()->current() }}?sort_direction=' + (sortDirection === 'asc' ? 'desc' : 'asc') + '&modified={{ request('modified') }}&search={{ request('search') }}'" 
-                   class="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                   class="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors shadow-md hover:shadow-lg">
                     <span>Nama</span>
                     <span x-show="sortDirection === 'asc'" class="material-symbols-outlined ml-1 text-base">arrow_upward</span>
                     <span x-show="sortDirection === 'desc'" class="material-symbols-outlined ml-1 text-base">arrow_downward</span>
@@ -30,7 +23,7 @@
                 <form method="GET" action="{{ route('file.folder', $folder) }}">
                     <input type="hidden" name="search" value="{{ request('search') }}">
                     <input type="hidden" name="sort_direction" value="{{ request('sort_direction', 'asc') }}">
-                    <select name="modified" onchange="this.form.submit()" class="border-gray-300 rounded-lg focus:ring-2 focus:ring-bri-blue focus:border-bri-blue text-sm transition">
+                    <select name="modified" onchange="this.form.submit()" class="border-gray-300 rounded-lg focus:ring-2 focus:ring-bri-blue focus:border-bri-blue text-sm transition shadow-md hover:bg-gray-100 hover:shadow-lg">
                         <option value="">Dimodifikasi</option>
                         <option value="today" @selected(request('modified') == 'today')>Hari ini</option>
                         <option value="week" @selected(request('modified') == 'week')>7 hari terakhir</option>
@@ -109,7 +102,7 @@
                 </div>
             @endif
         @empty
-            <div class="p-6 text-center text-gray-500">This folder is empty.</div>
+            <div class="p-6 text-center text-gray-500">Folder ini kosong.</div>
         @endforelse
     </div>
 </div>

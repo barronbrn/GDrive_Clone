@@ -2,6 +2,7 @@
 
 use App\Models\User;
 
+// Test: confirm password screen can be rendered
 test('confirm password screen can be rendered', function () {
     $user = User::factory()->create();
 
@@ -10,6 +11,7 @@ test('confirm password screen can be rendered', function () {
     $response->assertStatus(200);
 });
 
+// Test: password can be confirmed
 test('password can be confirmed', function () {
     $user = User::factory()->create();
 
@@ -21,6 +23,7 @@ test('password can be confirmed', function () {
     $response->assertSessionHasNoErrors();
 });
 
+// Tes: kata sandi tidak dikonfirmasi dengan kata sandi yang tidak valid
 test('password is not confirmed with invalid password', function () {
     $user = User::factory()->create();
 
