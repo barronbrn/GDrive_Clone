@@ -1,6 +1,6 @@
 <div x-data="{ open: false }" class="relative inline-block text-left">
     <button @click.stop.prevent="open = !open" 
-            class="text-gray-500 hover:text-gray-700 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bri-blue transition-colors opacity-100">
+            class="text-gray-500 hover:text-gray-700 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bri-blue transition-colors opacity-100 z-20">
         <span class="material-symbols">more_vert</span>
     </button>
     <div x-show="open" 

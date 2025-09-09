@@ -18,7 +18,7 @@
             <div class="group relative border-b border-gray-200 last:border-b-0">
                 <a href="{{ $item->is_folder ? route('file.folder', $item) : route('file.preview', $item) }}" 
                    target="{{ $item->is_folder ? '_self' : '_blank' }}"
-                   class="grid grid-cols-12 gap-4 items-center px-6 py-3 hover:bg-gray-200">
+                   class="grid grid-cols-12 gap-4 items-center px-6 py-3 hover:bg-gray-200 z-10">
                     
                     <div class="col-span-5 flex items-center space-x-4">
                         <x-file-icon :item="$item" class="w-8 h-8" />
@@ -30,7 +30,7 @@
                 </a>
                 
                 <!-- Menu aksi (Unduh, Ganti Nama, Hapus) -->
-                <div class="absolute top-1/2 right-4 -translate-y-1/2 flex items-center justify-end space-x-2">
+                <div class="absolute top-1/2 right-4 -translate-y-1/2 flex items-center justify-end space-x-2 z-20">
                     <x-file-actions-dropdown :item="$item" />
                 </div>
             </div>
