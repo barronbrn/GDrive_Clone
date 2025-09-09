@@ -24,8 +24,8 @@ Route::get('/cek-php', function () {
 // Routes requiring authentication
 Route::middleware(['auth', 'verified'])->group(function () {
     // Main file and folder browsing
-    Route::get('/', [FileController::class, 'index'])->name('file.index');
-    Route::get('/folders/{folder}', [FileController::class, 'index'])->name('file.folder');
+    Route::get('/', [DashboardController::class, 'showHomePage'])->name('file.index');
+    Route::get('/folders/{folder}', [DashboardController::class, 'showHomePage'])->name('file.folder');
 
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -33,8 +33,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Dashboard view routes
-    Route::get('/recent', [DashboardController::class, 'recent'])->name('recent');
-    Route::get('/trash', [DashboardController::class, 'trash'])->name('trash');
+    Route::get('/recent', [DashboardController::class, 'showRecentPage'])->name('recent');
+    Route::get('/trash', [DashboardController::class, 'showTrashPage'])->name('trash');
 
     // File and folder actions
     Route::post('/folder/create', [FileController::class, 'createFolder'])->name('folder.create');
