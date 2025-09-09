@@ -44,7 +44,8 @@
           showUploadFileModal: false,
           showEditModal: false,
           editItem: {},
-          currentFolderId: null
+          currentFolderId: null,
+          layoutView: 'list'
       }">
 
     <div class="flex h-screen bg-gray-50">
