@@ -1,4 +1,4 @@
-<div x-data="{ open: false }" class="relative inline-block text-left">
+<div x-data="{ open: false }" x-ref="root" x-bind:id="'dropdown-' + $id('dropdown')" class="relative inline-block text-left" @close-other-dropdowns.window="if (open && $event.detail.id !== $el.id) open = false">
     <button @click.stop.prevent="open = !open" 
             class="text-gray-500 hover:text-gray-700 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bri-blue transition-colors opacity-100 z-20">
         <span class="material-symbols">more_vert</span>
