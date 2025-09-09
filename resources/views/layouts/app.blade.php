@@ -39,18 +39,28 @@
     </style>
 </head>
 <body class="text-gray-800 antialiased" 
-      x-data="{ 
-          showCreateFolderModal: false, 
+      x-data="{
+          showCreateFolderModal: false,
           showUploadFileModal: false,
           showEditModal: false,
           editItem: {},
-          currentFolderId: null
+          currentFolderId: null,
+          isSidebarOpen: localStorage.getItem('isSidebarOpen') === 'false' ? false : true
       }">
 
     <div class="flex h-screen bg-gray-50">
-        @include('partials.sidebar')
+        <div x-show="isSidebarOpen" 
+             class="flex-shrink-0 w-72 h-full"
+             x-transition:enter="transition ease-in-out duration-300"
+             x-transition:enter-start="opacity-0 transform -translate-x-full"
+             x-transition:enter-end="opacity-100 transform translate-x-0"
+             x-transition:leave="transition ease-in-out duration-300"
+             x-transition:leave-start="opacity-100 transform translate-x-0"
+             x-transition:leave-end="opacity-0 transform -translate-x-full">
+            @include('partials.sidebar')
+        </div>
 
-        <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+        <main class="flex-1 p-6 md:p-10 overflow-y-auto transition-all duration-400 ease-in-out">
             @include('partials.header')
             <div class="mt-8">
                 @if (session('success'))
