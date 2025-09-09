@@ -81,42 +81,15 @@
                             </div>
                         </div>
                     </div>
-                @else
-                    <div class="grid grid-cols-12 gap-4 items-center px-6 py-4 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-                        <a href="{{ route('file.preview', $item) }}" target="_blank" class="col-span-12 md:col-span-5 flex items-center space-x-3">
-                            <x-file-icon :item="$item" />
-                            <span class="font-medium truncate">{{ $item->name }}</span>
-                        </a>
-                        <div class="col-span-6 md:col-span-3 text-sm text-gray-500">{{ $item->updated_at->format('d M, Y') }}</div>
-                        <div class="col-span-6 md:col-span-2 text-sm text-gray-500">{{ \Illuminate\Support\Number::fileSize($item->size) }}</div>
-                        <div class="col-span-12 md:col-span-2 text-right">
-                            <div class="relative inline-block text-left">
-                                <button @click="selectedItemMenu = (selectedItemMenu === {{ $item->id }} ? null : {{ $item->id }})" class="text-gray-500 hover:text-gray-700 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-bri-blue">
-                                    <span class="material-symbols">more_vert</span>
-                                </button>
-                                <div x-show="selectedItemMenu === {{ $item->id }}" @click.outside="selectedItemMenu = null" x-cloak class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
-                                    <div class="py-1" role="menu" aria-orientation="vertical">
-                                        <a href="{{ Route::has('file.download') ? route('file.download', $item) : '#' }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                                            <span class="material-symbols-outlined mr-3">download</span>
-                                            <span>Download</span>
-                                        </a>
-                                        <a href="#" @click.prevent="showEditModal = true; editItem = { id: {{ $item->id }}, name: '{{ addslashes($item->name) }}', action: '{{ Route::has('file.update') ? route('file.update', $item) : '#' }}' }; selectedItemMenu = null" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                                            <span class="material-symbols-outlined mr-3">drive_file_rename_outline</span>
-                                            <span>Rename</span>
-                                        </a>
-                                        <form action="{{ route('file.destroy', $item) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus file ini?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100" role="menuitem">
-                                                <span class="material-symbols-outlined mr-3">delete</span>
-                                                <span>Delete</span>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
+
+                    <div class="col-span-3 text-sm text-gray-500 hidden md:block">{{ $item->updated_at->format('d M, Y') }}</div>
+                    <div class="col-span-2 text-sm text-gray-500 hidden md:block">{{ $item->is_folder ? '—' : \Illuminate\Support\Number::fileSize($item->size) }}</div>
+                </a>
+                
+                <!-- Menu aksi (Download, Rename, Delete) -->
+                <div class="absolute top-1/2 right-4 -translate-y-1/2 flex items-center justify-end space-x-2">
+                    <x-file-actions-dropdown :item="$item" />
+                </div>
             </div>
         @empty
             <div class="p-12 text-center text-gray-500 bg-white rounded-xl shadow-lg border border-gray-200">
@@ -127,3 +100,23 @@
         @endforelse
     </div>
 </div>
+
+<style>
+    /* Ensure dropdown menu items are solid and clickable on hover */
+    .dropdown-menu-item:hover {
+        background-color: #f3f4f6 !important; /* Tailwind's gray-100 */
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: block !important; /* Ensure it's not hidden by display:none */
+    }
+</style>
+
+<style>
+    /* Ensure dropdown menu items are solid and clickable on hover */
+    .dropdown-menu-item:hover {
+        background-color: #f3f4f6 !important; /* Tailwind's gray-100 */
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: block !important; /* Ensure it's not hidden by display:none */
+    }
+</style>
