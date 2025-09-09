@@ -1,7 +1,8 @@
-<header class="flex justify-between items-center bg-bri-blue text-white py-3 px-6 rounded-2xl shadow-lg relative"
+
+<header class="flex justify-between items-center text-white py-4 px-6 rounded-2xl shadow-md bg-blue-800" 
         style="
             background-image: url('{{ asset('images/bg-mega-mendung.jpg') }}');
-            background-blend-mode: overlay;
+            background-blend-mode: multiply;
             background-size: cover;
             background-position: center;
         ">
@@ -16,19 +17,16 @@
             </div>
         </form>
 
-        @auth
-            <!-- Dropdown Profile -->
-            <div x-data="{ open: false }" class="relative ml-6">
-                <button @click="open = !open" class="flex items-center space-x-3 focus:outline-none">
-                    <img class="h-10 w-10 rounded-full object-cover border-2 border-white/50" 
-                         src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=EBF4FF&background=00529B" 
-                         alt="{{ Auth::user()->name }}">
-                    <div class="hidden md:block text-left">
-                        <p class="text-sm font-semibold text-white">{{ Auth::user()->name }}</p>
-                        <p class="text-xs text-gray-300">{{ Auth::user()->email }}</p>
-                    </div>
-                    <span class="material-symbols-outlined text-gray-300 hidden md:block transition-transform" :class="{ 'rotate-180': open }">expand_more</span>
-                </button>
+        <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </span>
+            <input type="text" name="search" placeholder="Search files and folders..." 
+                   class="w-full bg-white/40 text-black placeholder-black border border-white/50 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 transition">
+        </div>
+    </form>
 
                 <div x-show="open" @click.outside="open = false" x-cloak 
                      class="absolute z-50 mt-2 w-56 rounded-xl shadow-lg origin-top-right right-0 bg-white ring-1 ring-black ring-opacity-5 overflow-hidden"

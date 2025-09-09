@@ -19,11 +19,15 @@ class FileController extends Controller
             $folder->touch('last_accessed_at');
         }
 
-        $query = File::where('created_by', Auth::id())
-            ->where('parent_id', $folder?->id);
+        $query = File::where('created_by', Auth::id());
 
-        if ($request->filled('modified')) {
+        if ($request->filled('search')) {
             $this->applyFilters($query, $request);
+        } else {
+            $query->where('parent_id', $folder?->id);
+            if ($request->filled('modified')) {
+                $this->applyFilters($query, $request);
+            }
         }
 
         $sortDirection = $request->input('sort_direction', 'asc');
@@ -32,7 +36,7 @@ class FileController extends Controller
             ->get();
 
         $recentItems = collect();
-        if (! $folder) {
+        if (! $folder && !$request->filled('search')) {
             $recentItems = File::where('created_by', Auth::id())
                 ->whereNotNull('last_accessed_at')
                 ->orderBy('last_accessed_at', 'desc')
@@ -43,8 +47,8 @@ class FileController extends Controller
         return view('dashboard', [
             'items' => $items,
             'recentItems' => $recentItems,
-            'folder' => $folder,
-            'breadcrumbs' => $this->getBreadcrumbs($folder),
+            'folder' => $request->filled('search') ? null : $folder,
+            'breadcrumbs' => $request->filled('search') ? collect() : $this->getBreadcrumbs($folder),
         ]);
     }
 
