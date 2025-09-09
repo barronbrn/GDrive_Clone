@@ -13,24 +13,22 @@
          x-transition:leave-start="transform scale-100"
          x-transition:leave-end="transform scale-95">
         <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="menu-button">
-            @if (!$item->is_folder)
-                <a href="{{ route('file.download', $item) }}" 
-                   class="flex items-center px-4 py-2 text-sm text-gray-700 bg-white hover:bg-gray-100 dropdown-menu-item" role="menuitem">
-                    <span class="material-symbols-outlined mr-3">download</span>
-                    <span>Download</span>
-                </a>
-            @endif
-            <a href="#" 
-               @click.prevent="$dispatch('open-edit-modal', { id: {{ $item->id }}, name: '{{ $item->name }}', action: '{{ route('file.update', $item) }}' }); open = false" 
+            <a href="{{ $item->is_folder ? route('folder.download', $item) : route('file.download', $item) }}"
+               class="flex items-center px-4 py-2 text-sm text-gray-700 bg-white hover:bg-gray-100 dropdown-menu-item" role="menuitem">
+                <span class="material-symbols-outlined mr-3">download</span>
+                <span>Download</span>
+            </a>
+            <a href="#"
+               @click.prevent="$dispatch('open-edit-modal', { id: {{ $item->id }}, name: '{{ $item->name }}', action: '{{ route('file.update', $item) }}' }); open = false"
                class="flex items-center px-4 py-2 text-sm text-gray-700 bg-white hover:bg-gray-100 dropdown-menu-item" role="menuitem">
                 <span class="material-symbols-outlined mr-3">drive_file_rename_outline</span>
                 <span>Rename</span>
             </a>
-            <form action="{{ route('file.destroy', $item) }}" method="POST" 
+            <form action="{{ route('file.destroy', $item) }}" method="POST"
                   onsubmit="return confirm('Are you sure you want to delete this {{ $item->is_folder ? 'folder' : 'file' }}?')">
                 @csrf
                 @method('DELETE')
-                <button type="submit" 
+                <button type="submit"
                         class="flex items-center w-full px-4 py-2 text-sm text-red-600 bg-white hover:bg-gray-100 dropdown-menu-item" role="menuitem">
                     <span class="material-symbols-outlined mr-3">delete</span>
                     <span>Delete</span>
@@ -46,6 +44,6 @@
         background-color: #f3f4f6 !important; /* Tailwind's gray-100 */
         opacity: 1 !important;
         visibility: visible !important;
-        display: block !important; /* Pastikan tidak disembunyikan oleh display:none */
+        display: block !important; /* Ensure it's not hidden by display:none */
     }
 </style>
