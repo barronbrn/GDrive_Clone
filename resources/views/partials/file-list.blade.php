@@ -1,45 +1,9 @@
 <div>
-    <!-- Breadcrumbs -->
-    <nav class="flex items-center text-sm font-medium text-gray-500 mb-4">
-        <a href="{{ route('file.index') }}" class="hover:text-bri-blue">My Files</a>
-        @if(isset($breadcrumbs))
-            @foreach ($breadcrumbs as $breadcrumb)
-                <span class="mx-2">/</span>
-                <a href="{{ $breadcrumb['route'] }}" class="hover:text-bri-blue">{{ $breadcrumb['name'] }}</a>
-            @endforeach
-        @endif
-    </nav>
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4 sm:mb-0">{{ $folder->name ?? 'My Files' }}</h2>
-        <div class="flex items-center space-x-2">
-            <!-- Sorting & filtering bisa ditaruh di sini -->
-        </div>
-    </div>
 
-    <!-- Recent Items (hanya di root) -->
-    @if(!isset($folder))
-    <section class="mb-8">
-        <h3 class="text-lg font-semibold text-gray-700 mb-4">Recent</h3>
-        @if(isset($recentItems) && $recentItems->isNotEmpty())
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                @foreach ($recentItems as $item)
-                    <a href="{{ $item->is_folder ? route('file.folder', $item) : route('file.preview', $item) }}" 
-                       target="{{ $item->is_folder ? '_self' : '_blank' }}"
-                       class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 group">
-                        <div class="flex items-center space-x-3">
-                            <x-file-icon :item="$item" />
-                            <span class="font-semibold text-gray-800 truncate flex-1">{{ $item->name }}</span>
-                        </div>
-                    </a>
-                @endforeach
-            </div>
-        @else
-            <div class="text-center text-gray-500 py-8">No recent files.</div>
-        @endif
-    </section>
-    @endif
+
+
+
 
     <!-- File & Folder List -->
     <div class="bg-white rounded-xl shadow-lg border border-gray-200">
@@ -69,8 +33,8 @@
                 <div class="absolute top-1/2 right-4 -translate-y-1/2 flex items-center justify-end space-x-2">
                     <div x-data="{ open: false }" class="relative inline-block text-left">
                         <button @click.stop.prevent="open = !open" 
-                                class="text-gray-500 hover:text-gray-700 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bri-blue transition-colors opacity-0 group-hover:opacity-100">
-                            <span class="material-symbols-outlined">more_vert</span>
+                                class="text-gray-500 hover:text-gray-700 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bri-blue transition-colors opacity-100">
+                            <span class="material-symbols">more_vert</span>
                         </button>
                         <div x-show="open" 
                              @click.outside="open = false" 
@@ -96,7 +60,7 @@
                                     <span class="material-symbols-outlined mr-3">drive_file_rename_outline</span>
                                     <span>Rename</span>
                                 </a>
-                                <form action="{{ route('file.delete', $item) }}" method="POST" 
+                                <form action="{{ route('file.destroy', $item) }}" method="POST" 
                                       onsubmit="return confirm('Are you sure you want to delete this {{ $item->is_folder ? 'folder' : 'file' }}?')">
                                     @csrf
                                     @method('DELETE')

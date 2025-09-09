@@ -1,5 +1,5 @@
 
-<aside class="w-64 bg-gray-50 flex flex-col p-8 border-r border-gray-200">
+<aside class="w-72 bg-gray-50 flex flex-col p-8 border-r border-gray-200">
     <div class="flex items-center justify-center mb-12">
         <img src="{{ asset('images/logo-bri.png') }}" alt="BRI Logo" class="h-24 w-auto">
     </div>
@@ -13,7 +13,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
                 <span>Create New</span>
-                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 ml-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-bind:class="{ 'rotate-180': open }">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
@@ -93,9 +93,9 @@
         </ul>
     </nav>
 
-    <div class="mt-auto text-center">
+    <div class="mt-auto text-center flex justify-center">
         <hr class="my-4">
-        <p class="text-xs font-semibold text-blue-800 bg-blue-200 rounded-full px-3 py-1 italic">
+        <p class="text-sm font-semibold text-blue-800 bg-blue-200 rounded-full px-2 py-1 italic whitespace-nowrap">
             Melayani dengan setulus hati
         </p>
     </div>

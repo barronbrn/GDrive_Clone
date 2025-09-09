@@ -33,7 +33,8 @@
 
     <section>
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 sm:mb-0">Semua File</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 sm:mb-0">All Files</h2>
+
             <div x-data="{ sortDirection: '{{ request('sort_direction', 'asc') }}' }" class="flex items-center space-x-3 text-sm">
                 <a :href="'{{ url()->current() }}?sort_direction=' + (sortDirection === 'asc' ? 'desc' : 'asc') + '&modified={{ request('modified') }}&search={{ request('search') }}'" 
                    class="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
@@ -56,4 +57,5 @@
 
         @include('partials.file-list', ['items' => $items])
     </section>
+</div>
 </div>

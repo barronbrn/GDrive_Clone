@@ -51,7 +51,7 @@
                         <!-- Tombol Aksi Dropdown untuk file -->
                         <div x-data="{ open: false }" class="relative inline-block text-left">
                             <button @click="open = !open" class="text-gray-500 hover:text-gray-700 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-bri-blue">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"></path></svg>
+                                <span class="material-symbols">more_vert</span>
                             </button>
                             <div x-show="open" @click.outside="open = false" x-cloak class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
                                 <div class="py-1" role="menu" aria-orientation="vertical">
