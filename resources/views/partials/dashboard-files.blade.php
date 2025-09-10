@@ -5,7 +5,7 @@
 
 @include('partials.breadcrumbs')
 
-<div class="space-y-12">
+<div class="space-y-12" x-data="{}">
     @if(Auth::check() && isset($recentItems) && $recentItems->isNotEmpty())
     <section>
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Terakhir dibuka</h2>
