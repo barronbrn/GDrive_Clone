@@ -30,7 +30,7 @@
                 </a>
                 
                 <!-- Menu aksi (Unduh, Ganti Nama, Hapus) -->
-                <div class="absolute top-1/2 right-4 -translate-y-1/2 flex items-center justify-end space-x-2 z-20">
+                <div class="absolute top-1/2 right-4 -translate-y-1/2 flex items-center justify-end space-x-2 z-[9999]">
                     <x-file-actions-dropdown :item="$item" />
                 </div>
             </div>
