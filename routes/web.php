@@ -67,6 +67,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/trash/restore/{id}', [FileController::class, 'restore'])->name('trash.restore');
     // Menangani penghapusan permanen item dari sampah
     Route::delete('/trash/force-delete/{id}', [FileController::class, 'forceDelete'])->name('trash.forceDelete');
+
+    // Chunked Upload Routes
+    Route::post('/chunk-upload/initiate', [App\Http\Controllers\ChunkUploadController::class, 'initiate'])->name('chunk.upload.initiate');
+    Route::post('/chunk-upload/upload-chunk', [App\Http\Controllers\ChunkUploadController::class, 'uploadChunk'])->name('chunk.upload.chunk');
+    Route::post('/chunk-upload/finalize', [App\Http\Controllers\ChunkUploadController::class, 'finalize'])->name('chunk.upload.finalize');
 });
 
 require __DIR__.'/auth.php';

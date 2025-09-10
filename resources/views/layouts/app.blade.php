@@ -45,7 +45,91 @@
                       showUploadFileModal: false,
                       showEditModal: false,
                       editItem: {},
-                      currentFolderId: null
+                      currentFolderId: null,
+                      progress: 0,
+                      error: '',
+                      uploading: false,
+                      totalChunks: 0,
+                      currentChunk: 0,
+                      uploadId: null,
+                      chunkSize: 2 * 1024 * 1024, // 2MB
+                      async uploadFile(currentFolderId) {
+                          const fileInput = this.$refs.fileInput;
+                          if (fileInput.files.length === 0) {
+                              this.error = 'Please select a file to upload.';
+                              return;
+                          }
+
+                          const file = fileInput.files[0];
+                          this.uploading = true;
+                          this.progress = 0;
+                          this.error = '';
+                          this.currentChunk = 0;
+
+                          // Step 1: Initiate Upload
+                          try {
+                              const initiateResponse = await axios.post('{{ route('chunk.upload.initiate') }}', {
+                                  filename: file.name,
+                                  total_size: file.size,
+                                  total_chunks: Math.ceil(file.size / this.chunkSize),
+                                  parent_id: currentFolderId
+                              }, {
+                                  headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                              });
+                              this.uploadId = initiateResponse.data.upload_id;
+                              this.totalChunks = Math.ceil(file.size / this.chunkSize);
+                          } catch (initiateError) {
+                              this.uploading = false;
+                              this.error = 'Failed to initiate upload: ' + (initiateError.response?.data?.message || initiateError.message);
+                              return;
+                          }
+
+                          // Step 2: Upload Chunks
+                          for (let i = 0; i < this.totalChunks; i++) {
+                              this.currentChunk = i + 1;
+                              const start = i * this.chunkSize;
+                              const end = Math.min(start + this.chunkSize, file.size);
+                              const chunk = file.slice(start, end);
+
+                              const formData = new FormData();
+                              formData.append('upload_id', this.uploadId);
+                              formData.append('chunk_index', i);
+                              formData.append('file_chunk', chunk, file.name + '.part' + i); // Add filename for chunk
+
+                              try {
+                                  await axios.post('{{ route('chunk.upload.chunk') }}', formData, {
+                                      headers: {
+                                          'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                          'Content-Type': 'multipart/form-data' // Important for FormData
+                                      },
+                                      onUploadProgress: (e) => {
+                                          // Calculate progress for the current chunk
+                                          const chunkProgress = (e.loaded * 100) / e.total;
+                                          // Calculate overall progress
+                                          this.progress = ((i * this.chunkSize) + e.loaded) / file.size * 100;
+                                      }
+                                  });
+                              } catch (chunkError) {
+                                  this.uploading = false;
+                                  this.error = `Failed to upload chunk ${this.currentChunk} of ${this.totalChunks}: ` + (chunkError.response?.data?.message || chunkError.message);
+                                  return;
+                              }
+                          }
+
+                          // Step 3: Finalize Upload
+                          try {
+                              await axios.post('{{ route('chunk.upload.finalize') }}', {
+                                  upload_id: this.uploadId,
+                                  total_chunks: this.totalChunks
+                              }, {
+                                  headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                              });
+                              location.reload(); // Reload on success
+                          } catch (finalizeError) {
+                              this.uploading = false;
+                              this.error = 'Failed to finalize upload: ' + (finalizeError.response?.data?.message || finalizeError.message);
+                          }
+                      }
                   }"
                   @open-edit-modal.window="showEditModal = true; editItem = $event.detail">
                 <!-- Controls the visibility of the sidebar and its animation -->   
@@ -171,54 +255,20 @@
          class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 transition-opacity duration-300">
         <div @click.outside="showUploadFileModal = false" 
              class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md transform transition-all duration-300"
-             x-data="{
-                progress: 0,
-                error: '',
-                uploading: false,
-                uploadFile(currentFolderId) {
-                    const fileInput = this.$refs.fileInput;
-                    if (fileInput.files.length === 0) {
-                        this.error = 'Please select a file to upload.';
-                        return;
-                    }
-                    const data = new FormData();
-                    data.append('file_upload', fileInput.files[0]);
-                    if (currentFolderId) {
-                        data.append('parent_id', currentFolderId);
-                    }
-
-                    this.uploading = true;
-                    this.progress = 0;
-                    this.error = '';
-
-                    const config = {
-                        onUploadProgress: (e) => {
-                            this.progress = Math.round((e.loaded * 100) / e.total);
-                        },
-                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                    };
-
-                    axios.post('{{ route('file.upload') }}', data, config)
-                        .then(() => location.reload())
-                        .catch(error => {
-                            this.uploading = false;
-                            this.progress = 0;
-                            if (error.response && error.response.status === 422) {
-                                this.error = error.response.data.errors.file_upload[0];
-                            } else {
-                                this.error = 'Upload failed. Please try again.';
-                            }
-                        });
-                }
-             }">
+>
             <h3 class="text-2xl font-bold mb-6 text-gray-800">Upload New File</h3>
             <form @submit.prevent="uploadFile(currentFolderId)">
                 <input type="file" name="file_upload" x-ref="fileInput" class="w-full border border-gray-300 rounded-lg p-2 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-bri-blue hover:file:bg-blue-100 transition" required :disabled="uploading">
                 <div x-show="error" class="mt-2 text-sm text-red-600" x-text="error"></div>
 
                 <!-- Progress Bar -->
-                <div x-show="uploading" class="mt-4 w-full bg-gray-200 rounded-full">
-                    <div class="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" :style="`width: ${progress}%`" x-text="progress > 0 ? `${progress}%` : ''"></div>
+                <div x-show="uploading" class="mt-4 w-full">
+                    <div class="text-sm text-gray-600 mb-1" x-show="totalChunks > 0">
+                        Mengunggah chunk <span x-text="currentChunk"></span> dari <span x-text="totalChunks"></span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full">
+                        <div class="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" :style="`width: ${progress}%`" x-text="progress > 0 ? `${Math.round(progress)}%` : ''"></div>
+                    </div>
                 </div>
 
                 <div class="mt-6 flex justify-end space-x-3">
