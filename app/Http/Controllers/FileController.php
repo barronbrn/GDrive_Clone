@@ -68,7 +68,7 @@ class FileController extends Controller
             'parent_id' => $request->parent_id,
         ]);
 
-        return response()->json(['success' => 'Folder berhasil dibuat.']);
+        return response()->json(['success' => 'Folder created successfully.']);
     }
 
     // Menangani unggahan file baru
@@ -95,7 +95,7 @@ class FileController extends Controller
             ]);
         }
 
-        return response()->json(['success' => 'File berhasil diupload.']);
+        return response()->json(['success' => 'File uploaded successfully.']);
     }
 
     // Menangani pembaruan properti file/folder (misalnya, penggantian nama)
@@ -111,7 +111,7 @@ class FileController extends Controller
             'name' => $request->file_name,
         ]);
 
-        return back()->with('success', 'Nama berhasil diperbarui.');
+        return back()->with('success', 'Name updated successfully.');
     }
 
     // Menangani penghapusan sementara file atau folder (memindahkan ke sampah)
@@ -120,7 +120,7 @@ class FileController extends Controller
         $this->authorize('delete', $file);
         $file->delete(); // Soft delete
 
-        return back()->with('success', 'Item berhasil dipindahkan ke Trash.');
+        return back()->with('success', 'Item moved to Trash successfully.');
     }
 
     // Menangani pengunduhan file
@@ -142,11 +142,18 @@ class FileController extends Controller
         $tempZipPath = storage_path('app/temp/'.$zipFileName);
 
         if ($zip->open($tempZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            return back()->withErrors('Tidak dapat membuat file zip.');
+            return back()->withErrors('Could not create zip file.');
         }
 
-        $this->addFilesToZip($zip, $folder);
+        $filesAdded = $this->addFilesToZip($zip, $folder);
         $zip->close();
+
+        if (!$filesAdded) {
+            if (file_exists($tempZipPath)) {
+                unlink($tempZipPath);
+            }
+            return back()->with('error', 'This folder is empty and cannot be downloaded.');
+        }
 
         return response()->download($tempZipPath)->deleteFileAfterSend(true);
     }
@@ -172,7 +179,7 @@ class FileController extends Controller
         $this->authorize('restore', $file);
         $this->restoreWithChildren($file);
 
-        return back()->with('success', 'Item berhasil dikembalikan.');
+        return back()->with('success', 'Item restored successfully.');
     }
 
     // Menangani penghapusan permanen file atau folder dari sampah
@@ -183,7 +190,7 @@ class FileController extends Controller
         $this->deleteFolderContents($file);
         $file->forceDelete();
 
-        return back()->with('success', 'Item berhasil dihapus permanen.');
+        return back()->with('success', 'Item permanently deleted.');
     }
 
     // Metode Pembantu Pribadi
@@ -223,17 +230,22 @@ class FileController extends Controller
             ->where('created_by', Auth::id())
             ->get();
 
+        $filesAdded = false;
         foreach ($items as $item) {
             $localPath = ltrim($parentPath.'/'.$item->name, '/');
             if ($item->is_folder) {
                 $zip->addEmptyDir($localPath);
-                $this->addFilesToZip($zip, $item, $localPath);
+                if ($this->addFilesToZip($zip, $item, $localPath)) {
+                    $filesAdded = true;
+                }
             } else {
                 if (Storage::disk('private')->exists($item->path)) {
                     $zip->addFile(Storage::disk('private')->path($item->path), $localPath);
+                    $filesAdded = true;
                 }
             }
         }
+        return $filesAdded;
     }
 
     // Menghasilkan breadcrumb untuk navigasi folder (pembantu pribadi)
