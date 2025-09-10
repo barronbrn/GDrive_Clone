@@ -75,10 +75,10 @@ class FileController extends Controller
     public function uploadFile(Request $request)
     {
         $request->validate([
-            'file_upload' => 'required|file|max:512000', // 500MB limit per file
+            'file_upload' => 'required|file|max:2048', // 2MB limit per file (simulasi)
             'parent_id' => 'nullable|exists:files,id,created_by,'.Auth::id(),
         ], [
-            'file_upload.max' => 'The file must not be greater than 500MB.',
+            'file_upload.max' => 'The file must not be greater than 2MB.',
         ]);
 
         if ($request->hasFile('file_upload')) {
