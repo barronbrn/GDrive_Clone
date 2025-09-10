@@ -25,10 +25,12 @@ Route::get('/cek-php', function () {
 // Routes requiring authentication
 Route::middleware(['auth', 'verified'])->group(function () {
     // Main file and folder browsing
+
     // Displays the main dashboard with files and folders
     Route::get('/', [FileController::class, 'index'])->name('file.index');
     // Displays content of a specific folder
     Route::get('/folders/{folder}', [FileController::class, 'index'])->name('file.folder');
+
 
     // Profile routes
     // Displays the user profile editing form
@@ -39,10 +41,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Dashboard view routes
+
     // Displays recently accessed items
     Route::get('/recent/{folder?}', [DashboardController::class, 'recent'])->name('recent');
     // Displays trashed items
     Route::get('/trash', [DashboardController::class, 'trash'])->name('trash');
+
 
     // File and folder actions
     // Handles creation of new folders
@@ -53,6 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/file/update/{file}', [FileController::class, 'update'])->name('file.update');
     // Handles deleting a file or folder
     Route::delete('/file/delete/{file}', [FileController::class, 'destroy'])->name('file.destroy');
+    Route::post('/file/duplicate/{file}', [FileController::class, 'duplicate'])->name('file.duplicate');
 
     // File and folder downloads/previews
     // Handles downloading a file

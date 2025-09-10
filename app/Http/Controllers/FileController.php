@@ -12,8 +12,10 @@ use ZipArchive;
 
 class FileController extends Controller
 {
+
     // Menangani tampilan file dan folder di dasbor
     public function index(Request $request, ?File $folder = null)
+
     {
         if ($folder) {
             $this->authorize('view', $folder);
@@ -37,6 +39,7 @@ class FileController extends Controller
             ->get();
 
         $recentItems = collect();
+
         if (! $folder && ! $request->filled('search')) {
             $recentItems = File::where('created_by', Auth::id())
                 ->whereNotNull('last_accessed_at')
@@ -45,12 +48,29 @@ class FileController extends Controller
                 ->get();
         }
 
-        return view('dashboard', [
+        return [
             'items' => $items,
             'recentItems' => $recentItems,
             'folder' => $request->filled('search') ? null : $folder,
             'breadcrumbs' => $request->filled('search') ? collect() : $this->getBreadcrumbs($folder),
-        ]);
+        ];
+    }
+
+    public function getRecentItems($limit = 50)
+    {
+        return File::where('created_by', Auth::id())
+            ->whereNotNull('last_accessed_at')
+            ->orderBy('last_accessed_at', 'desc')
+            ->limit($limit)
+            ->get();
+    }
+
+    public function getTrashedItems()
+    {
+        return File::where('created_by', Auth::id())
+            ->onlyTrashed()
+            ->orderBy('deleted_at', 'desc')
+            ->get();
     }
 
     // Menangani pembuatan folder baru
@@ -66,6 +86,7 @@ class FileController extends Controller
             'is_folder' => true,
             'created_by' => Auth::id(),
             'parent_id' => $request->parent_id,
+            'last_accessed_at' => now(),
         ]);
 
         return response()->json(['success' => 'Folder berhasil dibuat.']);
@@ -92,6 +113,7 @@ class FileController extends Controller
                 'is_folder' => false,
                 'created_by' => Auth::id(),
                 'parent_id' => $request->parent_id,
+                'last_accessed_at' => now(),
             ]);
         }
 
@@ -151,7 +173,9 @@ class FileController extends Controller
         return response()->download($tempZipPath)->deleteFileAfterSend(true);
     }
 
+
     // Menangani pratinjau file
+
     public function preview(File $file)
     {
         $this->authorize('view', $file);
@@ -186,8 +210,8 @@ class FileController extends Controller
         return back()->with('success', 'Item berhasil dihapus permanen.');
     }
 
-    // Metode Pembantu Pribadi
 
+    // Metode Pembantu Pribadi
     // Secara rekursif menghapus isi folder (pembantu pribadi)
     private function deleteFolderContents(File $folder)
     {
@@ -280,4 +304,5 @@ class FileController extends Controller
             $query->where('name', 'like', '%'.$search.'%');
         }
     }
+
 }

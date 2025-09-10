@@ -54,4 +54,9 @@ class FilePolicy
     {
         return $this->isOwner($user, $file);
     }
+
+    public function duplicate(User $user, File $file)
+    {
+        return $this->isOwner($user, $file);
+    }
 }
