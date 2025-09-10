@@ -1,6 +1,6 @@
 <x-dropdown align="right" width="48" x-cloak class="z-[9999]">
     <x-slot name="trigger">
-        <button x-ref="trigger" class="text-black hover:text-gray-700 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bri-blue transition-colors opacity-100 bg-white"
+        <button x-ref="trigger" class="text-black hover:text-gray-700 p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bri-blue transition-colors opacity-100"
                 @click.stop="open = ! open; $dispatch('close-other-dropdowns', { id: id })">
             <span class="material-symbols">more_vert</span>
         </button>
@@ -12,7 +12,7 @@
                  x-cloak
                  x-ref="content"
                  class="origin-top-right absolute mt-2 w-56 rounded-md shadow-lg !bg-white ring-1 ring-black ring-opacity-5 z-[9999] focus:outline-none pointer-events-auto"
-                 :style="`top: ${$refs.trigger.getBoundingClientRect().bottom + window.scrollY}px; right: ${window.innerWidth - ($refs.trigger.getBoundingClientRect().right + window.scrollX)}px; background-color: white !important; opacity: 1 !important; will-change: transform, opacity; transform: translateZ(0);`"
+                 :style="`top: ${$refs.trigger.getBoundingClientRect().bottom + window.scrollY}px; left: ${$refs.trigger.getBoundingClientRect().left + window.scrollX - 224}px; background-color: white !important; opacity: 1 !important; will-change: transform, opacity; transform: translateZ(0);`"
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="transform scale-95"
                  x-transition:enter-end="transform scale-100"
