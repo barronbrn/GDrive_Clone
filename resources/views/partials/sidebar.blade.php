@@ -95,7 +95,7 @@
 
     <div class="mt-auto text-center flex justify-center">
         <p class="text-sm font-semibold text-blue-800 bg-blue-200 rounded-full px-2 py-1 italic whitespace-nowrap">
-            Melayani dengan setulus hati
+            Serving with a whole heart
         </p>
     </div>
 </aside>

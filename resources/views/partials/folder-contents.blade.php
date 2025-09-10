@@ -16,7 +16,7 @@
             <div x-data="{ sortDirection: '{{ request('sort_direction', 'asc') }}' }" class="flex items-center space-x-3 text-sm">
                 <a :href="'{{ url()->current() }}?sort_direction=' + (sortDirection === 'asc' ? 'desc' : 'asc') + '&modified={{ request('modified') }}&search={{ request('search') }}'" 
                    class="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors shadow-md hover:shadow-lg">
-                    <span>Nama</span>
+                    <span>Name</span>
                     <span x-show="sortDirection === 'asc'" class="material-symbols-outlined ml-1 text-base">arrow_upward</span>
                     <span x-show="sortDirection === 'desc'" class="material-symbols-outlined ml-1 text-base">arrow_downward</span>
                 </a>
@@ -24,10 +24,10 @@
                     <input type="hidden" name="search" value="{{ request('search') }}">
                     <input type="hidden" name="sort_direction" value="{{ request('sort_direction', 'asc') }}">
                     <select name="modified" onchange="this.form.submit()" class="border-gray-300 rounded-lg focus:ring-2 focus:ring-bri-blue focus:border-bri-blue text-sm transition shadow-md hover:bg-gray-100 hover:shadow-lg">
-                        <option value="">Dimodifikasi</option>
-                        <option value="today" @selected(request('modified') == 'today')>Hari ini</option>
-                        <option value="week" @selected(request('modified') == 'week')>7 hari terakhir</option>
-                        <option value="month" @selected(request('modified') == 'month')>Bulan ini</option>
+                        <option value="">Modified</option>
+                        <option value="today" @selected(request('modified') == 'today')>Today</option>
+                        <option value="week" @selected(request('modified') == 'week')>Last 7 days</option>
+                        <option value="month" @selected(request('modified') == 'month')>This month</option>
                     </select>
                 </form>
             </div>
@@ -70,7 +70,7 @@
                 </div>
             @endif
         @empty
-            <div class="p-6 text-center text-gray-500">Folder ini kosong.</div>
+            <div class="p-6 text-center text-gray-500">This folder is empty.</div>
         @endforelse
     </div>
 </div>

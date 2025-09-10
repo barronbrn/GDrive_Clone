@@ -8,9 +8,9 @@
     <!-- File & Folder List -->
     <div class="bg-white rounded-xl shadow-lg border border-gray-200">
         <div class="hidden md:grid grid-cols-12 gap-4 text-sm font-semibold text-gray-600 px-6 py-4 border-b border-gray-200">
-            <div class="col-span-5 pl-4">Nama</div>
-            <div class="col-span-3">Terakhir diubah</div>
-            <div class="col-span-2">Ukuran</div>
+            <div class="col-span-5 pl-4">Name</div>
+            <div class="col-span-3">Last Modified</div>
+            <div class="col-span-2">Size</div>
             <div class="col-span-2"></div>
         </div>
 
@@ -29,7 +29,7 @@
                     <div class="col-span-2 text-sm text-gray-500 hidden md:block">{{ $item->is_folder ? '—' : \Illuminate\Support\Number::fileSize($item->size) }}</div>
                 </a>
                 
-                <!-- Menu aksi (Unduh, Ganti Nama, Hapus) -->
+                <!-- Action menu (Download, Rename, Delete) -->
                 <div class="absolute top-1/2 right-4 -translate-y-1/2 flex items-center justify-end space-x-2 z-[9999]">
                     <x-file-actions-dropdown :item="$item" />
                 </div>
@@ -37,7 +37,7 @@
         @empty
             <div class="p-8 text-center text-gray-500">
                 <span class="material-symbols-outlined text-6xl text-gray-300">folder_open</span>
-                <p class="mt-4 text-lg">{{ isset($folder) && $folder ? 'Folder ini kosong.' : 'Tidak ada file atau folder.' }}</p>
+                <p class="mt-4 text-lg">{{ isset($folder) && $folder ? 'This folder is empty.' : 'No files or folders.' }}</p>
             </div>
         @endforelse
     </div>

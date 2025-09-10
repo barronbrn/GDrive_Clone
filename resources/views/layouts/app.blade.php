@@ -46,7 +46,8 @@
                       showEditModal: false,
                       editItem: {},
                       currentFolderId: null
-                  }">
+                  }"
+                  @open-edit-modal.window="showEditModal = true; editItem = $event.detail">
                 <!-- Controls the visibility of the sidebar and its animation -->   
                  <div class="flex h-screen bg-gray-50">
         <!-- Sidebar Wrapper: Controls sidebar visibility and animation -->
@@ -78,6 +79,17 @@
                                 <div>
                                     <p class="font-bold">Success</p>
                                     <p>{{ session('success') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    @if (session('error'))
+                        <div class="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 mb-6 rounded-lg shadow-md" role="alert">
+                            <div class="flex">
+                                <div class="py-1"><span class="material-symbols-outlined mr-3">error</span></div>
+                                <div>
+                                    <p class="font-bold">Error</p>
+                                    <p>{{ session('error') }}</p>
                                 </div>
                             </div>
                         </div>

@@ -35,9 +35,9 @@
             </form>
         </div>
 
-        <!-- Bagian Kanan: Otentikasi Pengguna / Dropdown Tamu -->
+        <!-- Right Section: User Authentication / Guest Dropdown -->
         @auth
-            <!-- Dropdown Profile -->
+            <!-- Profile Dropdown -->
             <div x-data="{ open: false }" class="relative ml-4">
                 <button 
                     @click="open = !open" 
@@ -63,7 +63,7 @@
                 </div>
             </div>
         @else
-            <!-- Tombol Login/Register -->
+            <!-- Login/Register Buttons -->
             <div class="flex items-center space-x-4 ml-4">
                 <a href="{{ route('login') }}" class="text-sm font-semibold text-white hover:text-gray-200 transition-colors">Log in</a>
                 @if (Route::has('register'))
