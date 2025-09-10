@@ -38,7 +38,7 @@ class FileController extends Controller
 
         $recentItems = collect();
         if (! $folder && ! $request->filled('search')) {
-            $recentItems = File::where('created_by', Auth::id())
+           $recentItems = File::where('created_by', Auth::id())
                 ->whereNotNull('last_accessed_at')
                 ->orderBy('last_accessed_at', 'desc')
                 ->limit(8)
