@@ -25,13 +25,3 @@
         </div>
     </div>
 </div>
-
-<style>
-    /* Pastikan item menu dropdown solid dan dapat diklik saat di-hover */
-    .dropdown-menu-item:hover {
-        background-color: #f3f4f6 !important; /* Tailwind's gray-100 */
-        opacity: 1 !important;
-        visibility: visible !important;
-        display: block !important; /* Ensure it's not hidden by display:none */
-    }
-</style>

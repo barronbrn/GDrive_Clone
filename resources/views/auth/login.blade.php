@@ -42,11 +42,6 @@
             </x-primary-button>
         </div>
 
-        <div class="text-center mt-4 text-sm text-gray-400">
-            Don't Have an Account? 
-            <a href="{{ route('register') }}" class="underline hover:text-white font-medium">
-                Daftar
-            </a>
-        </div>
+
     </form>
 </x-guest-layout>uest-layout>
