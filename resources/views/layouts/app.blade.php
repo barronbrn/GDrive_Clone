@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    <title>{{ $title ?? 'Dashboard' }} - DataBOX</title>
+    <title>{{ config('app.name', 'Laravel') }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-bri.png') }}">
     
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols&family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -128,8 +129,8 @@
 
                 <!-- Progress Bar -->
                 <div x-show="uploading" class="mt-4 w-full">
-                    <div class="text-sm text-gray-600 mb-1" x-show="totalChunks > 0">
-                        Mengunggah chunk <span x-text="currentChunk"></span> dari <span x-text="totalChunks"></span>
+                    <div class="text-sm text-gray-600 mb-1">
+                        Uploading file...
                     </div>
                     <div class="w-full bg-gray-200 rounded-full">
                         <div class="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" :style="`width: ${progress}%`" x-text="progress > 0 ? `${Math.round(progress)}%` : ''"></div>
