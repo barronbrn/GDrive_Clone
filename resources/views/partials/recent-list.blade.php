@@ -1,7 +1,7 @@
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
     <h2 class="text-xl font-semibold text-gray-700 mb-4 sm:mb-0">
         @if(isset($folder) && $folder) {{ $folder->name }}
-        @else Terakhir dibuat
+        @else Last created
         @endif
     </h2>
 </div>
