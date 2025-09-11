@@ -14,13 +14,6 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-// Publicly accessible test route
-Route::get('/cek-php', function () {
-    // Displays PHP information (for testing)
-    return phpinfo();
-});
-
 // Routes requiring authentication
 Route::middleware(['auth', 'verified'])->group(function () {
     // Main file and folder browsing
