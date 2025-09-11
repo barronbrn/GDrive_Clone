@@ -1,3 +1,80 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Added from layouts/app.blade.php */
+:root {
+    --bri-blue: #00529B;
+    --bri-blue-dark: #003a70;
+    --bg-color: #f8fafc;
+    --card-bg-color: #ffffff;
+    --text-color: #1f2937;
+    --text-muted-color: #6b7280;
+}
+body { 
+    background-color: var(--bg-color); 
+    font-family: 'Inter', sans-serif; 
+}
+.bg-bri-blue { background-color: var(--bri-blue); }
+.hover\:bg-bri-blue-dark:hover { background-color: var(--bri-blue-dark); }
+.text-bri-blue { color: var(--bri-blue); }
+.ring-bri-blue:focus { --tw-ring-color: var(--bri-blue); }
+.focus\:border-bri-blue:focus { border-color: var(--bri-blue); }
+[x-cloak] { display: none !important; }
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
+}
+.material-symbols {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24
+}
+
+/* Added from layouts/guest.blade.php */
+body {
+    background-color: #f0f4f8; /* Fallback color */
+}
+.bg-image-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('/images/bg-mega-mendung.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: brightness(70%);
+    z-index: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-container {
+    animation: fadeInUp 0.7s ease-out forwards;
+}
+
+.stagger-children > * {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+    animation-delay: var(--delay, 0s);
+}
+
+/* Added from partials/dashboard-files.blade.php */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Added from components/file-actions-dropdown.blade.php */
+.dropdown-menu-item:hover {
+    background-color: #f3f4f6 !important; /* Tailwind's gray-100 */
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important; /* Ensure it's not hidden by display:none */
+}

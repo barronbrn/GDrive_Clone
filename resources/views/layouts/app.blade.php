@@ -13,125 +13,21 @@
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
-    <style>
-        :root {
-            --bri-blue: #00529B;
-            --bri-blue-dark: #003a70;
-            --bg-color: #f8fafc;
-            --card-bg-color: #ffffff;
-            --text-color: #1f2937;
-            --text-muted-color: #6b7280;
-        }
-        body { background-color: var(--bg-color); font-family: 'Inter', sans-serif; }
-        .bg-bri-blue { background-color: var(--bri-blue); }
-        .hover\:bg-bri-blue-dark:hover { background-color: var(--bri-blue-dark); }
-        .text-bri-blue { color: var(--bri-blue); }
-        .ring-bri-blue:focus { --tw-ring-color: var(--bri-blue); }
-        .focus\:border-bri-blue:focus { border-color: var(--bri-blue); }
-        [x-cloak] { display: none !important; }
 
-        .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
-        }
-        .material-symbols {
-          font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24
-        }
-    </style>
 </head>
 <body class="text-gray-800 antialiased" 
-                  x-data="{
-                      isSidebarOpen: localStorage.getItem('isSidebarOpen') === 'false' ? false : true,
-                      showCreateFolderModal: false, 
-                      showUploadFileModal: false,
-                      showEditModal: false,
-                      editItem: {},
-                      currentFolderId: null,
-                      progress: 0,
-                      error: '',
-                      uploading: false,
-                      totalChunks: 0,
-                      currentChunk: 0,
-                      uploadId: null,
-                      chunkSize: 2 * 1024 * 1024, // 2MB
-                      async uploadFile(currentFolderId) {
-                          const fileInput = this.$refs.fileInput;
-                          if (fileInput.files.length === 0) {
-                              this.error = 'Please select a file to upload.';
-                              return;
-                          }
+      x-data="fileManager({
+          currentFolderId: {{ $folder->id ?? 'null' }},
+          csrfToken: '{{ csrf_token() }}',
+          routes: {
+              createFolder: '{{ route('folder.create') }}',
+              initiateUpload: '{{ route('chunk.upload.initiate') }}',
+              uploadChunk: '{{ route('chunk.upload.chunk') }}',
+              finalizeUpload: '{{ route('chunk.upload.finalize') }}'
+          }
+      })"
+      @open-edit-modal.window="showEditModal = true; editItem = $event.detail">
 
-                          const file = fileInput.files[0];
-                          this.uploading = true;
-                          this.progress = 0;
-                          this.error = '';
-                          this.currentChunk = 0;
-
-                          // Step 1: Initiate Upload
-                          try {
-                              const initiateResponse = await axios.post('{{ route('chunk.upload.initiate') }}', {
-                                  filename: file.name,
-                                  total_size: file.size,
-                                  total_chunks: Math.ceil(file.size / this.chunkSize),
-                                  parent_id: currentFolderId
-                              }, {
-                                  headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                              });
-                              this.uploadId = initiateResponse.data.upload_id;
-                              this.totalChunks = Math.ceil(file.size / this.chunkSize);
-                          } catch (initiateError) {
-                              this.uploading = false;
-                              this.error = 'Failed to initiate upload: ' + (initiateError.response?.data?.message || initiateError.message);
-                              return;
-                          }
-
-                          // Step 2: Upload Chunks
-                          for (let i = 0; i < this.totalChunks; i++) {
-                              this.currentChunk = i + 1;
-                              const start = i * this.chunkSize;
-                              const end = Math.min(start + this.chunkSize, file.size);
-                              const chunk = file.slice(start, end);
-
-                              const formData = new FormData();
-                              formData.append('upload_id', this.uploadId);
-                              formData.append('chunk_index', i);
-                              formData.append('file_chunk', chunk, file.name + '.part' + i); // Add filename for chunk
-
-                              try {
-                                  await axios.post('{{ route('chunk.upload.chunk') }}', formData, {
-                                      headers: {
-                                          'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                          'Content-Type': 'multipart/form-data' // Important for FormData
-                                      },
-                                      onUploadProgress: (e) => {
-                                          // Calculate progress for the current chunk
-                                          const chunkProgress = (e.loaded * 100) / e.total;
-                                          // Calculate overall progress
-                                          this.progress = ((i * this.chunkSize) + e.loaded) / file.size * 100;
-                                      }
-                                  });
-                              } catch (chunkError) {
-                                  this.uploading = false;
-                                  this.error = `Failed to upload chunk ${this.currentChunk} of ${this.totalChunks}: ` + (chunkError.response?.data?.message || chunkError.message);
-                                  return;
-                              }
-                          }
-
-                          // Step 3: Finalize Upload
-                          try {
-                              await axios.post('{{ route('chunk.upload.finalize') }}', {
-                                  upload_id: this.uploadId,
-                                  total_chunks: this.totalChunks
-                              }, {
-                                  headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                              });
-                              location.reload(); // Reload on success
-                          } catch (finalizeError) {
-                              this.uploading = false;
-                              this.error = 'Failed to finalize upload: ' + (finalizeError.response?.data?.message || finalizeError.message);
-                          }
-                      }
-                  }"
-                  @open-edit-modal.window="showEditModal = true; editItem = $event.detail">
                 <!-- Controls the visibility of the sidebar and its animation -->   
                  <div class="flex h-screen bg-gray-50">
         <!-- Sidebar Wrapper: Controls sidebar visibility and animation -->
@@ -202,41 +98,11 @@
          @keydown.escape.window="showCreateFolderModal = false" 
          class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 transition-opacity duration-300">
         <div @click.outside="showCreateFolderModal = false" 
-             class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md transform transition-all duration-300"
-             x-data="{
-                folderName: '',
-                error: '',
-                creating: false,
-                createFolder(currentFolderId) {
-                    if (!this.folderName.trim()) {
-                        this.error = 'Folder name is required.';
-                        return;
-                    }
-                    this.creating = true;
-                    this.error = '';
-
-                    const data = new FormData();
-                    data.append('folder_name', this.folderName);
-                    if (currentFolderId) {
-                        data.append('parent_id', currentFolderId);
-                    }
-
-                    axios.post('{{ route('folder.create') }}', data, { headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }})
-                        .then(() => location.reload())
-                        .catch(error => {
-                            this.creating = false;
-                            if (error.response && error.response.status === 422) {
-                                this.error = error.response.data.errors.folder_name[0];
-                            } else {
-                                this.error = 'Could not create folder. Please try again.';
-                            }
-                        });
-                }
-             }">
+             class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md transform transition-all duration-300">
             <h3 class="text-2xl font-bold mb-6 text-gray-800">Create New Folder</h3>
-            <form @submit.prevent="createFolder(currentFolderId)">
+            <form @submit.prevent="createFolder()">
                 <input type="text" name="folder_name" x-model="folderName" placeholder="Enter folder name" class="w-full border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-bri-blue focus:border-bri-blue transition" required :disabled="creating">
-                <div x-show="error" class="mt-2 text-sm text-red-600" x-text="error"></div>
+                <div x-show="createFolderError" class="mt-2 text-sm text-red-600" x-text="createFolderError"></div>
                 <div class="mt-6 flex justify-end space-x-3">
                     <button type="button" @click="showCreateFolderModal = false" class="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300" :disabled="creating">Cancel</button>
                     <button type="submit" class="px-5 py-2 bg-bri-blue text-white rounded-lg hover:bg-bri-blue-dark" :disabled="creating">
@@ -254,12 +120,11 @@
          @keydown.escape.window="showUploadFileModal = false" 
          class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 transition-opacity duration-300">
         <div @click.outside="showUploadFileModal = false" 
-             class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md transform transition-all duration-300"
->
+             class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md transform transition-all duration-300">
             <h3 class="text-2xl font-bold mb-6 text-gray-800">Upload New File</h3>
-            <form @submit.prevent="uploadFile(currentFolderId)">
+            <form @submit.prevent="uploadFile()">
                 <input type="file" name="file_upload" x-ref="fileInput" class="w-full border border-gray-300 rounded-lg p-2 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-bri-blue hover:file:bg-blue-100 transition" required :disabled="uploading">
-                <div x-show="error" class="mt-2 text-sm text-red-600" x-text="error"></div>
+                <div x-show="uploadError" class="mt-2 text-sm text-red-600" x-text="uploadError"></div>
 
                 <!-- Progress Bar -->
                 <div x-show="uploading" class="mt-4 w-full">
