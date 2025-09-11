@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="title">Recent Items</x-slot>
+    <x-slot name="title">Recent</x-slot>
 
     @include('partials.breadcrumbs')
 
