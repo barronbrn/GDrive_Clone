@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,13 +29,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Displays content of a specific folder
     Route::get('/folders/{folder}', [FileController::class, 'index'])->name('file.folder');
 
-    // Profile routes
-    // Displays the user profile editing form
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    // Updates the user profile information
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    // Deletes the user account
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Dashboard view routes
     // Displays recently accessed items

@@ -39,7 +39,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-image: url('/images/bg-mega-mendung.jpg');
+    background-image: url('../../public/images/bg-mega-mendung.jpg');
     background-size: cover;
     background-position: center;
     filter: brightness(70%);
