@@ -1,0 +1,39 @@
+Panduan Pengujian API Node.js dengan Postman
+
+------------------------------------------
+Bagian 1: Menjalankan Server Node.js
+------------------------------------------
+
+1. Buka terminal atau command prompt baru.
+2. Masuk ke direktori proyek Node.js:
+   cd D:\KP\GDrive_Clone\nodejs_api
+3. Jalankan server dengan perintah:
+   npm start
+4. Server akan berjalan di http://localhost:3000. Biarkan terminal ini terbuka.
+
+------------------------------------------
+Bagian 2: Mendapatkan API Token (JWT)
+------------------------------------------
+
+1. Buka Postman dan buat request baru.
+2. Pilih metode POST dan masukkan URL: http://localhost:3000/api/auth/login
+3. Buka tab Body, pilih `raw` dan pilih `JSON` dari dropdown.
+4. Masukkan body JSON berikut dengan kredensial user Anda:
+   {
+       "email": "fathan@gmail.com",
+       "password": "password"
+   }
+5. Klik Send.
+6. Jika berhasil, Anda akan mendapatkan respons JSON. Salin (copy) nilai `access_token` yang Anda terima.
+
+------------------------------------------
+Bagian 3: Mengakses Endpoint File (Contoh: GET /api/files)
+------------------------------------------
+
+1. Buat request baru di Postman.
+2. Pilih metode GET dan masukkan URL: http://localhost:3000/api/files
+3. Buka tab Authorization.
+4. Pilih Type: Bearer Token.
+5. Di kolom Token di sebelah kanan, tempelkan (paste) `access_token` yang sudah Anda salin dari Bagian 2.
+6. Buka tab Headers. Pastikan ada key `Accept` dengan value `application/json`.
+7. Klik Send. Anda akan melihat daftar file Anda dari API Node.js dalam format JSON.

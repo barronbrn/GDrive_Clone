@@ -1,0 +1,212 @@
+### **Panduan Membuat REST API dengan Node.js & Express.js**
+
+Tujuan kita adalah membuat server API yang bisa:
+1.  Melakukan koneksi ke database MySQL yang sudah ada.
+2.  Menyediakan endpoint untuk login dan memberikan token otentikasi.
+3.  Menyediakan endpoint aman (terproteksi token) untuk mengambil data file.
+
+**Langkah 0: Prasyarat**
+*   Pastikan **Node.js** dan **npm** sudah terinstal di sistem Anda. Anda bisa memeriksanya dengan perintah `node -v` dan `npm -v` di terminal.
+
+**Langkah 1: Inisialisasi Proyek Node.js**
+1.  Buat folder baru untuk proyek API Anda (misalnya, `GDrive_API_NodeJS`) di `D:\KP\` setelah Anda menghapus yang lama.
+2.  Masuk ke folder tersebut melalui terminal.
+3.  Jalankan perintah berikut untuk membuat file `package.json`. File ini akan melacak semua dependensi (pustaka) proyek Anda:
+    ```bash
+    npm init -y
+    ```
+
+**Langkah 2: Instal Pustaka (Dependencies) yang Dibutuhkan**
+Kita akan membutuhkan beberapa pustaka dari npm:
+*   `express`: Kerangka kerja (framework) untuk membangun server web.
+*   `mysql2`: Driver untuk menghubungkan Node.js ke database MySQL Anda.
+*   `dotenv`: Untuk memuat konfigurasi (seperti password database) dari file `.env`.
+*   `jsonwebtoken`: Untuk membuat dan memverifikasi token otentikasi (API Token).
+*   `bcryptjs`: Untuk membandingkan password yang di-hash oleh Laravel (karena Laravel juga menggunakan Bcrypt).
+*   `cors`: Untuk mengizinkan aplikasi web frontend Anda (yang ada di domain lain) mengakses API ini.
+
+Jalankan perintah ini di terminal untuk menginstalnya:
+```bash
+npm install express mysql2 dotenv jsonwebtoken bcryptjs cors
+```
+
+**Langkah 3: Struktur Folder Proyek**
+Buat struktur folder seperti ini di dalam `GDrive_API_NodeJS` agar proyek Anda rapi:
+```
+GDrive_API_NodeJS/
+├── node_modules/
+├── .env                  <-- File untuk menyimpan kredensial rahasia
+├── index.js              <-- File utama untuk menjalankan server
+├── package.json
+└── src/
+    ├── config/
+    │   └── database.js   <-- Konfigurasi koneksi database
+    ├── controllers/
+    │   ├── authController.js  <-- Logika untuk login
+    │   └── fileController.js    <-- Logika untuk manajemen file
+    ├── middleware/
+    │   └── authMiddleware.js  <-- Middleware untuk cek token
+    └── routes/
+        ├── authRoutes.js      <-- Rute untuk endpoint /auth/...
+        └── fileRoutes.js      <-- Rute untuk endpoint /files/...
+```
+
+**Langkah 4: Konfigurasi Database & Server**
+
+1.  **Buat file `.env`** di root folder proyek (`GDrive_API_NodeJS`) dan isi dengan:
+    ```
+    DB_HOST=127.0.0.1
+    DB_USER=root
+    DB_PASSWORD=
+    DB_NAME=gdrive_clone
+    JWT_SECRET=INI_ADALAH_KUNCI_RAHASIA_ANDA
+    ```
+
+2.  **Buat koneksi database** di `src/config/database.js`:
+    ```javascript
+    const mysql = require('mysql2');
+    require('dotenv').config();
+
+    const pool = mysql.createPool({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+    });
+
+    module.exports = pool.promise();
+    ```
+
+3.  **Buat server Express dasar** di `index.js`:
+    ```javascript
+    const express = require('express');
+    const cors = require('cors');
+    require('dotenv').config();
+
+    const authRoutes = require('./src/routes/authRoutes');
+    const fileRoutes = require('./src/routes/fileRoutes');
+
+    const app = express();
+
+    // Middleware
+    app.use(cors()); // Mengizinkan request dari domain lain
+    app.use(express.json()); // Mem-parsing body request sebagai JSON
+
+    // Routes
+    app.use('/api/auth', authRoutes);
+    app.use('/api/files', fileRoutes);
+
+    const PORT = process.env.PORT || 3001;
+    app.listen(PORT, () => {
+      console.log(`Server berjalan di port ${PORT}`);
+    });
+    ```
+
+**Langkah 5: Membuat Logika dan Rute Autentikasi**
+
+1.  **Buat `src/controllers/authController.js`** untuk logika login:
+    ```javascript
+    const db = require('../config/database');
+    const bcrypt = require('bcryptjs');
+    const jwt = require('jsonwebtoken');
+
+    exports.login = async (req, res) => {
+      const { email, password } = req.body;
+
+      try {
+        // 1. Cari user berdasarkan email
+        const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (rows.length === 0) {
+          return res.status(401).json({ message: 'Email atau password salah' });
+        }
+        const user = rows[0];
+
+        // 2. Bandingkan password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return res.status(401).json({ message: 'Email atau password salah' });
+        }
+
+        // 3. Buat Token JWT
+        const payload = { id: user.id, name: user.name };
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.json({ message: 'Login berhasil', token });
+      } catch (error) {
+        res.status(500).json({ message: 'Kesalahan server', error: error.message });
+      }
+    };
+    ```
+
+2.  **Buat `src/routes/authRoutes.js`** untuk rute login:
+    ```javascript
+    const express = require('express');
+    const router = express.Router();
+    const authController = require('../controllers/authController');
+
+    router.post('/login', authController.login);
+
+    module.exports = router;
+    ```
+
+**Langkah 6: Membuat Rute yang Dilindungi Token**
+
+1.  **Buat middleware** di `src/middleware/authMiddleware.js` untuk memeriksa token:
+    ```javascript
+    const jwt = require('jsonwebtoken');
+
+    module.exports = (req, res, next) => {
+      const authHeader = req.headers.authorization;
+
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Akses ditolak, tidak ada token.' });
+      }
+
+      try {
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded; // Simpan data user dari token ke object request
+        next();
+      } catch (error) {
+        res.status(400).json({ message: 'Token tidak valid.' });
+      }
+    };
+    ```
+
+2.  **Buat `src/controllers/fileController.js`** dan **`src/routes/fileRoutes.js`** untuk mengambil data file, menggunakan middleware di atas.
+    *   `fileController.js`:
+        ```javascript
+        const db = require('../config/database');
+
+        exports.getAllFiles = async (req, res) => {
+          try {
+            // Ambil file milik user yang sedang login (id didapat dari token)
+            const [files] = await db.query('SELECT * FROM files WHERE created_by = ?', [req.user.id]);
+            res.json(files);
+          } catch (error) {
+            res.status(500).json({ message: 'Kesalahan server' });
+          }
+        };
+        ```
+    *   `fileRoutes.js`:
+        ```javascript
+        const express = require('express');
+        const router = express.Router();
+        const fileController = require('../controllers/fileController');
+        const authMiddleware = require('../middleware/authMiddleware');
+
+        // Terapkan middleware di sini!
+        router.get('/', authMiddleware, fileController.getAllFiles);
+
+        module.exports = router;
+        ```
+
+**Langkah 7: Menjalankan API Server Anda**
+Kembali ke terminal di root folder proyek Anda, dan jalankan:
+```bash
+node index.js
+```
+Anda akan melihat pesan "Server berjalan di port 3001". Sekarang API Anda sudah aktif dan siap digunakan.

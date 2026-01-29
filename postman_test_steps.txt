@@ -1,0 +1,43 @@
+Panduan Pengujian API dengan Postman
+
+(Pastikan server lokal Anda berjalan, misalnya dengan `php artisan serve`)
+
+------------------------------------------
+Bagian 1: Mendapatkan API Token
+------------------------------------------
+
+1. Buka Postman dan buat request baru.
+2. Pilih metode POST dan masukkan URL: http://127.0.0.1:8000/api/login (ganti dengan URL server lokal Anda jika berbeda).
+3. Buka tab Body, pilih `x-www-form-urlencoded`.
+4. Masukkan dua key berikut beserta value-nya:
+   - email: Alamat email user Anda.
+   - password: Password user Anda.
+5. Klik Send.
+6. Jika berhasil, Anda akan mendapatkan respons JSON. Salin (copy) nilai `access_token` yang Anda terima.
+
+------------------------------------------
+Bagian 2: Mengakses Endpoint File (Contoh: GET /api/files)
+------------------------------------------
+
+1. Buat request baru.
+2. Pilih metode GET dan masukkan URL: http://127.0.0.1:8000/api/files.
+3. Buka tab Authorization.
+4. Pilih Type: Bearer Token.
+5. Di kolom Token di sebelah kanan, tempelkan (paste) `access_token` yang sudah Anda salin dari Bagian 1.
+6. Buka tab Headers. Pastikan ada key `Accept` dengan value `application/json`.
+7. Klik Send. Anda akan melihat daftar file Anda dalam format JSON.
+
+------------------------------------------
+Bagian 3: Mengunggah File (Contoh: POST /api/files)
+------------------------------------------
+
+1. Buat request baru.
+2. Pilih metode POST dan masukkan URL: http://127.0.0.1:8000/api/files.
+3. Atur Authorization ke Bearer Token seperti pada Bagian 2.
+4. Buka tab Body dan pilih `form-data`.
+5. Buat key baru:
+   - Masukkan `file_upload` pada kolom KEY.
+   - Di ujung kanan, klik dropdown `Text` dan ubah menjadi `File`.
+   - Pada kolom VALUE, klik "Select Files" dan pilih file yang ingin Anda unggah.
+6. (Opsional) Jika ingin mengunggah ke dalam folder tertentu, tambahkan key baru `parent_id` (sebagai `Text`) dan isi value-nya dengan ID folder tujuan.
+7. Klik Send. File Anda akan diunggah.

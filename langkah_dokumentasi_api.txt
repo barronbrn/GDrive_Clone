@@ -1,0 +1,21 @@
+Langkah-langkah untuk membuat dan mengelola dokumentasi API dengan Scribe di Laravel:
+
+1. Install Scribe:
+   - Perintah ini akan menambahkan Scribe sebagai dependensi pengembangan pada proyek Anda.
+   - `composer require --dev knuckleswtf/scribe`
+
+2. Publikasikan Konfigurasi:
+   - Perintah ini akan membuat file konfigurasi `config/scribe.php` dan beberapa file view untuk dokumentasi.
+   - `php artisan vendor:publish --provider="Knuckles\Scribe\ScribeServiceProvider"`
+
+3. Hasilkan (Generate) Dokumentasi:
+   - Setiap kali Anda membuat atau mengubah API, jalankan perintah ini untuk memperbarui dokumentasi.
+   - `php artisan scribe:generate`
+
+4. Akses Dokumentasi:
+   - Setelah dokumentasi berhasil dibuat, Anda bisa mengaksesnya di URL `/docs`.
+   - Contoh: http://localhost:8000/docs
+
+Tips Tambahan:
+- Anda bisa menambahkan anotasi (PHPDoc) pada method controller Anda untuk memberikan deskripsi lebih detail, contoh parameter, dan contoh response. Scribe akan membacanya secara otomatis.
+- Konfigurasi lebih lanjut bisa diubah di `config/scribe.php`, seperti mengubah route, menambahkan logo, dll.

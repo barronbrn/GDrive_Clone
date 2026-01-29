@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+Route::post('/login', [AuthController::class, 'login']);
 
 /*
 |--------------------------------------------------------------------------
@@ -15,6 +18,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    // Returns the authenticated user's data
     return $request->user();
+});
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::apiResource('files', \App\Http\Controllers\Api\FileApiController::class);
 });
